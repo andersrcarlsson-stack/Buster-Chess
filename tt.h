@@ -40,7 +40,7 @@ public:
     }
 
     void clear_table() {
-        for (tp_table& e : transposition_table) e.zobrist_key_64 = 0UL;
+        for (tp_table& e : transposition_table) e.zobrist_key_64 = 0ULL;
         position_list.clear();
     }
 
@@ -72,7 +72,7 @@ public:
     int hashfull() {
         int used = 0;
         for (int i = 0; i < 1000; ++i)
-            if (transposition_table[i].zobrist_key_64 != 0UL) ++used;
+            if (transposition_table[i].zobrist_key_64 != 0ULL) ++used;
         return used;
     }
 
@@ -98,8 +98,8 @@ public:
     }
 
     void generate_initial_zobrist_key(Chess & Board) { 
-        uint64_t traveling_one {1UL}; 
-        Board.tpt.zobrist_key_64 = 0UL; // reset zobrist key
+        uint64_t traveling_one {1ULL}; 
+        Board.tpt.zobrist_key_64 = 0ULL; // reset zobrist key
 
         for (int i = 0; i < 64; ++i) {
             if (Board.mailbox[i] !=0){

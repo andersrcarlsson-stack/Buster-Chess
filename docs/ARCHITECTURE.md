@@ -239,7 +239,7 @@ repetition stack.pop();
 ## Build
 
 - `make` compiles with `-O3 -march=native -mbmi2 -Wall -Wextra`, and the tree builds **without
-  warnings**. The code needs C++17 and a CPU with BMI2 (see the README).
+  warnings**. The code needs C++20 and a CPU with BMI2 (see the README).
 - `NDEBUG` is not defined, so the few `assert`s (for example on the repetition stack's bounds)
   stay active in the release build.
 - `make asan` builds `buster_asan` with AddressSanitizer and UndefinedBehaviorSanitizer.

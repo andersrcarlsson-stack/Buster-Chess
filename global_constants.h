@@ -11,14 +11,14 @@ a4 = 16777216, b4 = 33554432, c4 = 67108864, d4 = 134217728, e4 = 268435456, f4 
 a5 = 4294967296, b5 = 8589934592, c5 = 17179869184, d5 = 34359738368, e5 = 68719476736, f5 = 137438953472, g5 = 274877906944, h5 = 549755813888,
 a6 = 1099511627776, b6 = 2199023255552, c6 = 4398046511104, d6 = 8796093022208, e6 = 17592186044416, f6 = 35184372088832, g6 = 70368744177664, h6 = 140737488355328,
 a7 = 281474976710656, b7 = 562949953421312, c7 = 1125899906842624, d7 = 2251799813685248, e7 = 4503599627370496, f7 = 9007199254740992, g7 = 18014398509481984, h7 = 36028797018963968,
-a8 = 72057594037927936, b8 = 144115188075855872, c8 = 288230376151711744, d8 = 576460752303423488, e8 = 1152921504606846976, f8 = 2305843009213693952, g8 = 4611686018427387904, h8 = 9223372036854775808UL;
+a8 = 72057594037927936, b8 = 144115188075855872, c8 = 288230376151711744, d8 = 576460752303423488, e8 = 1152921504606846976, f8 = 2305843009213693952, g8 = 4611686018427387904, h8 = 9223372036854775808ULL;
 
 namespace my_const {
 
 constexpr std::array<uint64_t, 28> diagonals {
         a1+b2+c3+d4+e5+f6+g7+h8, a2+b3+c4+d5+e6+f7+g8, a3+b4+c5+d6+e7+f8, a4+b5+c6+d7+e8, a5+b6+c7+d8, a6+b7+c8, a7+b8, b1+c2+d3+e4+f5+g6+h7, c1+d2+e3+f4+g5+h6, d1+e2+f3+g4+h5,
         e1+f2+g3+h4, f1+g2+h3, g1+h2, a8+b7+c6+d5+e4+f3+g2+h1, b8+c7+d6+e5+f4+g3+h2, c8+d7+e6+f5+g4+h3, d8+e7+f6+g5+h4,  e8+f7+g6+h5, f8+g7+h6, g8+h7, a7+b6+c5+d4+e3+f2+g1, 
-        a6+b5+c4+d3+e2+f1, a5+b4+c3+d2+e1, a4+b3+c2+d1, a3+b2+c1, a2+b1, ~0UL, 0UL}; 
+        a6+b5+c4+d3+e2+f1, a5+b4+c3+d2+e1, a4+b3+c2+d1, a3+b2+c1, a2+b1, ~0ULL, 0ULL}; 
         // element #27 (index 26) is for all board OK (pinned pieces)
 
 constexpr std::array<std::array<uint64_t, 2>, 65> diagonal_pointer {{
@@ -29,7 +29,7 @@ constexpr std::array<std::array<uint64_t, 2>, 65> diagonal_pointer {{
 
 constexpr std::array<uint64_t, 18> ranks_and_files {
         a1+b1+c1+d1+e1+f1+g1+h1, a2+b2+c2+d2+e2+f2+g2+h2, a3+b3+c3+d3+e3+f3+g3+h3, a4+b4+c4+d4+e4+f4+g4+h4, a5+b5+c5+d5+e5+f5+g5+h5, a6+b6+c6+d6+e6+f6+g6+h6, a7+b7+c7+d7+e7+f7+g7+h7, a8+b8+c8+d8+e8+f8+g8+h8,
-        a1+a2+a3+a4+a5+a6+a7+a8, b1+b2+b3+b4+b5+b6+b7+b8, c1+c2+c3+c4+c5+c6+c7+c8, d1+d2+d3+d4+d5+d6+d7+d8, e1+e2+e3+e4+e5+e6+e7+e8, f1+f2+f3+f4+f5+f6+f7+f8, g1+g2+g3+g4+g5+g6+g7+g8, h1+h2+h3+h4+h5+h6+h7+h8, ~0UL, 0UL};
+        a1+a2+a3+a4+a5+a6+a7+a8, b1+b2+b3+b4+b5+b6+b7+b8, c1+c2+c3+c4+c5+c6+c7+c8, d1+d2+d3+d4+d5+d6+d7+d8, e1+e2+e3+e4+e5+e6+e7+e8, f1+f2+f3+f4+f5+f6+f7+f8, g1+g2+g3+g4+g5+g6+g7+g8, h1+h2+h3+h4+h5+h6+h7+h8, ~0ULL, 0ULL};
         // element # 17 (index 16) is for all board OK (pinned pieces)
 
 constexpr std::array<std::array<uint64_t, 2>, 65> ranks_and_files_pointer {{
@@ -79,21 +79,21 @@ constexpr std::array<uint64_t, 64> knight_neighbors {
 
 constexpr std::array<std::array <uint64_t, 64>, 2> pawn_neighbors {{{ 
         b2, a2+c2, b2+d2, c2+e2, d2+f2, e2+g2, f2+h2, g2, b3, a3+c3, b3+d3, c3+e3, d3+f3, e3+g3, f3+h3, g3, b4, a4+c4, b4+d4, c4+e4, d4+f4, e4+g4, f4+h4, g4, b5, a5+c5, b5+d5, c5+e5, d5+f5, e5+g5, f5+h5, g5,
-        b6, a6+c6, b6+d6, c6+e6, d6+f6, e6+g6, f6+h6, g6, b7, a7+c7, b7+d7, c7+e7, d7+f7, e7+g7, f7+h7, g7, b8, a8+c8, b8+d8, c8+e8, d8+f8, e8+g8, f8+h8, g8, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL}, 
+        b6, a6+c6, b6+d6, c6+e6, d6+f6, e6+g6, f6+h6, g6, b7, a7+c7, b7+d7, c7+e7, d7+f7, e7+g7, f7+h7, g7, b8, a8+c8, b8+d8, c8+e8, d8+f8, e8+g8, f8+h8, g8, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL}, 
         {
-        0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, b1, a1+c1, b1+d1, c1+e1, d1+f1, e1+g1, f1+h1, g1, b2, a2+c2, b2+d2, c2+e2, d2+f2, e2+g2, f2+h2, g2, b3, a3+c3, b3+d3, c3+e3, d3+f3, e3+g3, f3+h3, g3,
+        0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, b1, a1+c1, b1+d1, c1+e1, d1+f1, e1+g1, f1+h1, g1, b2, a2+c2, b2+d2, c2+e2, d2+f2, e2+g2, f2+h2, g2, b3, a3+c3, b3+d3, c3+e3, d3+f3, e3+g3, f3+h3, g3,
         b4, a4+c4, b4+d4, c4+e4, d4+f4, e4+g4, f4+h4, g4, b5, a5+c5, b5+d5, c5+e5, d5+f5, e5+g5, f5+h5, g5, b6, a6+c6, b6+d6, c6+e6, d6+f6, e6+g6, f6+h6, g6, b7, a7+c7, b7+d7, c7+e7, d7+f7, e7+g7, f7+h7, g7}}};
 
 constexpr std::array<std::array <uint64_t, 65>, 2> pawn_movespace {{{ 
-        0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, a3+a4, b3+b4, c3+c4, d3+d4, e3+e4, f3+f4, g3+g4, h3+h4, a4, b4, c4, d4, e4, f4, g4, h4, a5, b5, c5, d5, e5, f5, g5, h5,
-        a6, b6, c6, d6, e6, f6, g6, h6, a7, b7, c7, d7, e7, f7, g7, h7, a8, b8, c8, d8, e8, f8, g8, h8,  0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL}, 
+        0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, a3+a4, b3+b4, c3+c4, d3+d4, e3+e4, f3+f4, g3+g4, h3+h4, a4, b4, c4, d4, e4, f4, g4, h4, a5, b5, c5, d5, e5, f5, g5, h5,
+        a6, b6, c6, d6, e6, f6, g6, h6, a7, b7, c7, d7, e7, f7, g7, h7, a8, b8, c8, d8, e8, f8, g8, h8,  0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL}, 
         {
-        0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, a1, b1, c1, d1, e1, f1, g1, h1, a2, b2, c2, d2, e2, f2, g2, h2, a3, b3, c3, d3, e3, f3, g3, h3,
-        a4, b4, c4, d4, e4, f4, g4, h4, a5, b5, c5, d5, e5, f5, g5, h5, a6+a5, b6+b5, c6+c5, d6+d5, e6+e5, f6+f5, g6+g5, h6+h5, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL}}};
+        0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, a1, b1, c1, d1, e1, f1, g1, h1, a2, b2, c2, d2, e2, f2, g2, h2, a3, b3, c3, d3, e3, f3, g3, h3,
+        a4, b4, c4, d4, e4, f4, g4, h4, a5, b5, c5, d5, e5, f5, g5, h5, a6+a5, b6+b5, c6+c5, d6+d5, e6+e5, f6+f5, g6+g5, h6+h5, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL}}};
 
 constexpr std::array<uint64_t, 64> en_passant {
-        0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, b4, a4+c4, b4+d4, c4+e4, d4+f4, e4+g4, f4+h4, g4, 
-        b5, a5+c5, b5+d5, c5+e5, d5+f5, e5+g5, f5+h5, g5, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL};
+        0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, b4, a4+c4, b4+d4, c4+e4, d4+f4, e4+g4, f4+h4, g4, 
+        b5, a5+c5, b5+d5, c5+e5, d5+f5, e5+g5, f5+h5, g5, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL};
 
 const std::vector<std::vector<int>> mvv_lva {{0, 0, 25}, {}, {0, 0, 25, 26, 27, 28, 29, 30}, {0, 0, 19, 20, 21, 22, 23, 24}, {0, 0, 13, 14, 15, 16, 17, 18}, {0, 0, 7, 8, 9, 10, 11, 12}, {0, 0, 1, 2, 3, 4, 5, 6}};
 
@@ -120,8 +120,8 @@ const uint64_t file_F_mask = f1+f2+f3+f4+f5+f6+f7+f8;
 const uint64_t file_G_mask = g1+g2+g3+g4+g5+g6+g7+g8;
 const uint64_t file_H_mask = h1+h2+h3+h4+h5+h6+h7+h8;
 
-const uint64_t one_mask = ~0UL;
-const uint64_t zero_mask = 0UL;
+const uint64_t one_mask = ~0ULL;
+const uint64_t zero_mask = 0ULL;
 
 const uint64_t pit_on_off[2] {zero_mask, one_mask};
 
@@ -188,15 +188,15 @@ constexpr int tempo = 15;   // side-to-move bonus (flat — not phase-dependent)
 
 constexpr std::array<std::string_view, 8> algebra_pieces {"", "", "", "N", "B", "R", "Q", "K"};
 
-constexpr std::string_view engine_version = "7.0.1";   // the one place the version lives: id name, tag, README
+constexpr std::string_view engine_version = "7.0.2";   // the one place the version lives: id name, tag, README
 
 const uint64_t white_king_side = e1+f1+g1;
 const uint64_t white_queen_side = c1+d1+e1;
 const uint64_t black_king_side = e8+f8+g8;
 const uint64_t black_queen_side = c8+d8+e8;
-constexpr uint64_t ep_castling_mask = 9295710006374498433UL; // status bits changed for castling(0/7/56/63) + e.p. rows(3,6) → Zobrist update
-constexpr uint64_t check_flag = 16777216UL; // status bit 24 = "side to move in check"
-constexpr uint64_t halfmove_clock_mask = 4261412864UL; // status bits 25–31  = fifty-move counter
+constexpr uint64_t ep_castling_mask = 9295710006374498433ULL; // status bits changed for castling(0/7/56/63) + e.p. rows(3,6) → Zobrist update
+constexpr uint64_t check_flag = 16777216ULL; // status bit 24 = "side to move in check"
+constexpr uint64_t halfmove_clock_mask = 4261412864ULL; // status bits 25–31  = fifty-move counter
 
 constexpr uint32_t from_square_mask = 64512; // from-square, bits 10–15
 constexpr uint32_t to_square_mask = 1008; // to-square, bits 4-9

@@ -80,17 +80,17 @@ two_vectors diag_mask_lookup(void)   {
 uint64_t generate_diag_moves(int square, uint64_t evaluated_bit, uint64_t blockers) {
 uint64_t low_population, high_population, low_horizon_mask, high_horizon_mask, low_opponent, high_opponent;
 // generates moves for Diagonal Sliders 
-    uint64_t possible_move_to_bits = 0UL;
-    uint64_t possible_capture_bits = 0UL;
-    uint64_t low_mask = evaluated_bit - 1UL; // set everything lower than "evaluated_bit" to 1
+    uint64_t possible_move_to_bits = 0ULL;
+    uint64_t possible_capture_bits = 0ULL;
+    uint64_t low_mask = evaluated_bit - 1ULL; // set everything lower than "evaluated_bit" to 1
     uint64_t high_mask = evaluated_bit ^ (~low_mask); // set everything higher than "evaluated_bit" to 1
     for (int m : my_const::diagonal_pointer[square]) { // loop for one or two diagonals based on the particular square number (int)
         low_population = blockers & my_const::diagonals[m] & low_mask; // look in lower diagonal
         high_population = blockers & my_const::diagonals[m] & high_mask; // look in higher diagonal
-        low_horizon_mask = ~((1UL << (leftmostSetBit_0(low_population))) - 1UL); // mask out everything lower than leftmost populated pos
-        high_horizon_mask = (high_population & (~high_population + 1UL)) - 1UL; // mask out everything higher than rightmost populated pos
-        low_opponent = blockers & ((1UL << leftmostSetBit_0(low_population)) >> 1); // look in lower diagonal
-        high_opponent = blockers & (high_population & (~high_population +1UL)); // look in higher diagonal
+        low_horizon_mask = ~((1ULL << (leftmostSetBit_0(low_population))) - 1ULL); // mask out everything lower than leftmost populated pos
+        high_horizon_mask = (high_population & (~high_population + 1ULL)) - 1ULL; // mask out everything higher than rightmost populated pos
+        low_opponent = blockers & ((1ULL << leftmostSetBit_0(low_population)) >> 1); // look in lower diagonal
+        high_opponent = blockers & (high_population & (~high_population +1ULL)); // look in higher diagonal
 
         possible_move_to_bits |= (high_horizon_mask & low_horizon_mask & my_const::diagonals[m] & ~evaluated_bit); // combine the high and low horizon masks to get possible move space - Note Queen itself
         possible_capture_bits |= (low_opponent | high_opponent);
@@ -155,17 +155,17 @@ two_vectors rank_file_mask_lookup(void)   {
 uint64_t generate_rank_file_moves(int square, uint64_t evaluated_bit, uint64_t blockers) {
 uint64_t low_population, high_population, low_horizon_mask, high_horizon_mask, low_opponent, high_opponent;
 // generates moves for Rank and File Sliders 
-    uint64_t possible_move_to_bits = 0UL;
-    uint64_t possible_capture_bits = 0UL;
-    uint64_t low_mask = evaluated_bit - 1UL; // set everything lower than "evaluated_bit" to 1
+    uint64_t possible_move_to_bits = 0ULL;
+    uint64_t possible_capture_bits = 0ULL;
+    uint64_t low_mask = evaluated_bit - 1ULL; // set everything lower than "evaluated_bit" to 1
     uint64_t high_mask = evaluated_bit ^ (~low_mask); // set everything higher than "evaluated_bit" to 1
     for (int m : my_const::ranks_and_files_pointer[square]) { // loop for one or two diagonals based on the particular square number (int)
         low_population = blockers & my_const::ranks_and_files[m] & low_mask; // look in lower diagonal
         high_population = blockers & my_const::ranks_and_files[m] & high_mask; // look in higher diagonal
-        low_horizon_mask = ~((1UL << (leftmostSetBit_0(low_population))) - 1UL); // mask out everything lower than leftmost populated pos
-        high_horizon_mask = (high_population & (~high_population + 1UL)) - 1UL; // mask out everything higher than rightmost populated pos
-        low_opponent = blockers & ((1UL << leftmostSetBit_0(low_population)) >> 1); // look in lower diagonal
-        high_opponent = blockers & (high_population & (~high_population +1UL)); // look in higher diagonal
+        low_horizon_mask = ~((1ULL << (leftmostSetBit_0(low_population))) - 1ULL); // mask out everything lower than leftmost populated pos
+        high_horizon_mask = (high_population & (~high_population + 1ULL)) - 1ULL; // mask out everything higher than rightmost populated pos
+        low_opponent = blockers & ((1ULL << leftmostSetBit_0(low_population)) >> 1); // look in lower diagonal
+        high_opponent = blockers & (high_population & (~high_population +1ULL)); // look in higher diagonal
 
         possible_move_to_bits |= (high_horizon_mask & low_horizon_mask & my_const::ranks_and_files[m] & ~evaluated_bit); // combine the high and low horizon masks to get possible move space - Note Queen itself
         possible_capture_bits |= (low_opponent | high_opponent);
@@ -178,7 +178,7 @@ return possible_move_to_bits;
 
 int leftmostSetBit_0(uint64_t n) {
         
-        return (!n)? 0 : 64 - __builtin_clzl(n);
+        return (!n)? 0 : 64 - std::countl_zero(n);
     };
 
 void generatePermutations(uint64_t num, std::vector<uint64_t>& results, int index = 0) {

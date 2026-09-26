@@ -28,10 +28,10 @@ void make_new_state (Chess & board, uint16_t move) {
     switch (move & 15) {
 
         case 0: {  // quiet move
-            bb[pit] &= ~(1UL << from);
-            bb[pit] |= (1UL << to);
-            bb[mb[from]] &= ~(1UL << from);
-            bb[mb[from]] |= (1UL << to);
+            bb[pit] &= ~(1ULL << from);
+            bb[pit] |= (1ULL << to);
+            bb[mb[from]] &= ~(1ULL << from);
+            bb[mb[from]] |= (1ULL << to);
             mb[to] = mb[from];
             mb[from] = 0;
             board.tpt.zobrist_key_64 ^= zobrist.hash_piece[from][moved][pit]; // take out
@@ -39,14 +39,14 @@ void make_new_state (Chess & board, uint16_t move) {
         } break;
 
         case 1: {  // double pawn push
-            bb[pit] &= ~(1UL << from);
-            bb[pit] |= (1UL << to);
-            bb[mb[from]] &= ~(1UL << from);
-            bb[mb[from]] |= (1UL << to);
+            bb[pit] &= ~(1ULL << from);
+            bb[pit] |= (1ULL << to);
+            bb[mb[from]] &= ~(1ULL << from);
+            bb[mb[from]] |= (1ULL << to);
             mb[to] = mb[from];
             mb[from] = 0;
-            bb[status] |= ((((1UL << to) >> 8) & my_const::pit_on_off [!!(bb[Pawn] & bb[!pit] & my_const::en_passant[to])] & my_const::pit_on_off[!pit]) | 
-                          (((1UL << to) << 8) & my_const::pit_on_off [!!(bb[Pawn] & bb[!pit] & my_const::en_passant[to])] & my_const::pit_on_off[pit]));
+            bb[status] |= ((((1ULL << to) >> 8) & my_const::pit_on_off [!!(bb[Pawn] & bb[!pit] & my_const::en_passant[to])] & my_const::pit_on_off[!pit]) | 
+                          (((1ULL << to) << 8) & my_const::pit_on_off [!!(bb[Pawn] & bb[!pit] & my_const::en_passant[to])] & my_const::pit_on_off[pit]));
             board.tpt.zobrist_key_64 ^= zobrist.hash_piece[from][moved][pit]; // take out
             board.tpt.zobrist_key_64 ^= zobrist.hash_piece[to][moved][pit]; // put in
         } break;
@@ -84,12 +84,12 @@ void make_new_state (Chess & board, uint16_t move) {
         } break;
 
         case 4: {  // capture 
-            bb[pit] &= ~(1UL << from);
-            bb[pit] |= (1UL << to);
-            bb[!pit] &= ~(1UL << to);
-            bb[mb[to]] &= ~(1UL << to);
-            bb[mb[from]] &= ~(1UL << from);
-            bb[mb[from]] |= (1UL << to);
+            bb[pit] &= ~(1ULL << from);
+            bb[pit] |= (1ULL << to);
+            bb[!pit] &= ~(1ULL << to);
+            bb[mb[to]] &= ~(1ULL << to);
+            bb[mb[from]] &= ~(1ULL << from);
+            bb[mb[from]] |= (1ULL << to);
             mb[to] = mb[from];
             mb[from] = 0;
             board.tpt.zobrist_key_64 ^= zobrist.hash_piece[from][moved][pit]; // take out
@@ -98,12 +98,12 @@ void make_new_state (Chess & board, uint16_t move) {
         } break;
         
         case 5: {  // capture en passant
-            bb[pit] &= ~(1UL << from);
-            bb[pit] |= (1UL << to);
-            bb[!pit] &= ~(1UL << (to - 8 + 16 * pit));
-            bb[Pawn] &= ~(1UL << (to - 8 + 16 * pit));
-            bb[Pawn] &= ~(1UL << from);
-            bb[Pawn] |= (1UL << to);
+            bb[pit] &= ~(1ULL << from);
+            bb[pit] |= (1ULL << to);
+            bb[!pit] &= ~(1ULL << (to - 8 + 16 * pit));
+            bb[Pawn] &= ~(1ULL << (to - 8 + 16 * pit));
+            bb[Pawn] &= ~(1ULL << from);
+            bb[Pawn] |= (1ULL << to);
             mb[to] = mb[from];
             mb[from] = 0;
             mb[to - 8 + 16 * pit] = 0;
@@ -113,10 +113,10 @@ void make_new_state (Chess & board, uint16_t move) {
         } break;
 
         case 8: {  // knight promotion
-            bb[pit] &= ~(1UL << from);
-            bb[pit] |= (1UL << to);
-            bb[Pawn] &= ~(1UL << from);
-            bb[Knight] |= (1UL << to);
+            bb[pit] &= ~(1ULL << from);
+            bb[pit] |= (1ULL << to);
+            bb[Pawn] &= ~(1ULL << from);
+            bb[Knight] |= (1ULL << to);
             mb[to] = Knight;
             mb[from] = 0;
             board.tpt.zobrist_key_64 ^= zobrist.hash_piece[from][Pawn][pit]; // take out
@@ -124,10 +124,10 @@ void make_new_state (Chess & board, uint16_t move) {
         } break;
 
         case 9: {  // bishop promotion
-            bb[pit] &= ~(1UL << from);
-            bb[pit] |= (1UL << to);
-            bb[Pawn] &= ~(1UL << from);
-            bb[Bishop] |= (1UL << to);
+            bb[pit] &= ~(1ULL << from);
+            bb[pit] |= (1ULL << to);
+            bb[Pawn] &= ~(1ULL << from);
+            bb[Bishop] |= (1ULL << to);
             mb[to] = Bishop;
             mb[from] = 0;
             board.tpt.zobrist_key_64 ^= zobrist.hash_piece[from][Pawn][pit]; // take out
@@ -135,10 +135,10 @@ void make_new_state (Chess & board, uint16_t move) {
         } break;
         
         case 10: {  // rook promotion
-            bb[pit] &= ~(1UL << from);
-            bb[pit] |= (1UL << to);
-            bb[Pawn] &= ~(1UL << from);
-            bb[Rook] |= (1UL << to);
+            bb[pit] &= ~(1ULL << from);
+            bb[pit] |= (1ULL << to);
+            bb[Pawn] &= ~(1ULL << from);
+            bb[Rook] |= (1ULL << to);
             mb[to] = Rook;
             mb[from] = 0;
             board.tpt.zobrist_key_64 ^= zobrist.hash_piece[from][Pawn][pit]; // take out
@@ -146,10 +146,10 @@ void make_new_state (Chess & board, uint16_t move) {
         } break;
 
         case 11: {  // queen promotion
-            bb[pit] &= ~(1UL << from);
-            bb[pit] |= (1UL << to);
-            bb[Pawn] &= ~(1UL << from);
-            bb[Queen] |= (1UL << to);
+            bb[pit] &= ~(1ULL << from);
+            bb[pit] |= (1ULL << to);
+            bb[Pawn] &= ~(1ULL << from);
+            bb[Queen] |= (1ULL << to);
             mb[to] = Queen;
             mb[from] = 0;
             board.tpt.zobrist_key_64 ^= zobrist.hash_piece[from][Pawn][pit]; // take out
@@ -157,12 +157,12 @@ void make_new_state (Chess & board, uint16_t move) {
         } break;
 
         case 12: {  // knight promotion capture 
-            bb[pit] &= ~(1UL << from);
-            bb[pit] |= (1UL << to);
-            bb[!pit] &= ~(1UL << to);
-            bb[mb[to]] &= ~(1UL << to);
-            bb[mb[from]] &= ~(1UL << from);
-            bb[Knight] |= (1UL << to);
+            bb[pit] &= ~(1ULL << from);
+            bb[pit] |= (1ULL << to);
+            bb[!pit] &= ~(1ULL << to);
+            bb[mb[to]] &= ~(1ULL << to);
+            bb[mb[from]] &= ~(1ULL << from);
+            bb[Knight] |= (1ULL << to);
             mb[to] = Knight;
             mb[from] = 0;
             board.tpt.zobrist_key_64 ^= zobrist.hash_piece[from][Pawn][pit]; // take out
@@ -171,12 +171,12 @@ void make_new_state (Chess & board, uint16_t move) {
         } break;
 
         case 13: {  // bishop promotion capture 
-            bb[pit] &= ~(1UL << from);
-            bb[pit] |= (1UL << to);
-            bb[!pit] &= ~(1UL << to);
-            bb[mb[to]] &= ~(1UL << to);
-            bb[mb[from]] &= ~(1UL << from);
-            bb[Bishop] |= (1UL << to);
+            bb[pit] &= ~(1ULL << from);
+            bb[pit] |= (1ULL << to);
+            bb[!pit] &= ~(1ULL << to);
+            bb[mb[to]] &= ~(1ULL << to);
+            bb[mb[from]] &= ~(1ULL << from);
+            bb[Bishop] |= (1ULL << to);
             mb[to] = Bishop;
             mb[from] = 0;
             board.tpt.zobrist_key_64 ^= zobrist.hash_piece[from][Pawn][pit]; // take out
@@ -185,12 +185,12 @@ void make_new_state (Chess & board, uint16_t move) {
         } break;
 
         case 14: {  // rook promotion capture 
-            bb[pit] &= ~(1UL << from);
-            bb[pit] |= (1UL << to);
-            bb[!pit] &= ~(1UL << to);
-            bb[mb[to]] &= ~(1UL << to);
-            bb[mb[from]] &= ~(1UL << from);
-            bb[Rook] |= (1UL << to);
+            bb[pit] &= ~(1ULL << from);
+            bb[pit] |= (1ULL << to);
+            bb[!pit] &= ~(1ULL << to);
+            bb[mb[to]] &= ~(1ULL << to);
+            bb[mb[from]] &= ~(1ULL << from);
+            bb[Rook] |= (1ULL << to);
             mb[to] = Rook;
             mb[from] = 0;
             board.tpt.zobrist_key_64 ^= zobrist.hash_piece[from][Pawn][pit]; // take out
@@ -199,12 +199,12 @@ void make_new_state (Chess & board, uint16_t move) {
         } break;
 
         case 15: {  // queen promotion capture 
-            bb[pit] &= ~(1UL << from);
-            bb[pit] |= (1UL << to);
-            bb[!pit] &= ~(1UL << to);
-            bb[mb[to]] &= ~(1UL << to);
-            bb[mb[from]] &= ~(1UL << from);
-            bb[Queen] |= (1UL << to);
+            bb[pit] &= ~(1ULL << from);
+            bb[pit] |= (1ULL << to);
+            bb[!pit] &= ~(1ULL << to);
+            bb[mb[to]] &= ~(1ULL << to);
+            bb[mb[from]] &= ~(1ULL << from);
+            bb[Queen] |= (1ULL << to);
             mb[to] = Queen;
             mb[from] = 0;
             board.tpt.zobrist_key_64 ^= zobrist.hash_piece[from][Pawn][pit]; // take out
@@ -231,11 +231,11 @@ void make_new_state (Chess & board, uint16_t move) {
 
     // TranspositionTable updates in [state] - castling rights and e.p. targets
     changes_in_state = (status_before ^ bb[status]) & ep_castling_mask;
-    number_of_changes = __builtin_popcountll(changes_in_state);
+    number_of_changes = std::popcount(changes_in_state);
     for (int i = 0; i < number_of_changes; ++i) {
-        ev_bit = changes_in_state & (~changes_in_state + 1UL); // take the rightmost bit in changes_in_state and make it "evaluation_bit"
+        ev_bit = changes_in_state & (~changes_in_state + 1ULL); // take the rightmost bit in changes_in_state and make it "evaluation_bit"
         changes_in_state &= ~ev_bit; // remove the "evaluation_bit" from changes_in_state
-        ev_square = __builtin_ctzl(ev_bit);
+        ev_square = std::countr_zero(ev_bit);
         board.tpt.zobrist_key_64 ^= zobrist.hash_piece[ev_square][0][0];
     }
 }
@@ -266,18 +266,18 @@ void unmake (Chess & board, uint16_t move, const Undo & undo) {
         case 0:                                      // quiet
         case 1: {                                    // double push (ep bit comes back via old_status)
             int pc = mb[to];
-            bb[mp] &= ~(1UL << to); bb[mp] |= (1UL << from);
-            bb[pc] &= ~(1UL << to); bb[pc] |= (1UL << from);
+            bb[mp] &= ~(1ULL << to); bb[mp] |= (1ULL << from);
+            bb[pc] &= ~(1ULL << to); bb[pc] |= (1ULL << from);
             mb[from] = pc; mb[to] = 0;
         } break;
 
         case 4: {                                    // capture
             int pc = mb[to];
-            bb[mp] &= ~(1UL << to); bb[mp] |= (1UL << from);
-            bb[pc] &= ~(1UL << to); bb[pc] |= (1UL << from);
+            bb[mp] &= ~(1ULL << to); bb[mp] |= (1ULL << from);
+            bb[pc] &= ~(1ULL << to); bb[pc] |= (1ULL << from);
             mb[from] = pc;
             int cp = undo.captured;                  // put the captured piece back on 'to'
-            bb[op] |= (1UL << to); bb[cp] |= (1UL << to);
+            bb[op] |= (1ULL << to); bb[cp] |= (1ULL << to);
             mb[to] = cp;
         } break;
 
@@ -297,28 +297,28 @@ void unmake (Chess & board, uint16_t move, const Undo & undo) {
 
         case 5: {                                    // en-passant capture
             int cap_sq = to - 8 + 16 * mp;
-            bb[mp]   &= ~(1UL << to); bb[mp]   |= (1UL << from);
-            bb[Pawn] &= ~(1UL << to); bb[Pawn] |= (1UL << from);
-            bb[op]   |= (1UL << cap_sq); bb[Pawn] |= (1UL << cap_sq);   // captured pawn back
+            bb[mp]   &= ~(1ULL << to); bb[mp]   |= (1ULL << from);
+            bb[Pawn] &= ~(1ULL << to); bb[Pawn] |= (1ULL << from);
+            bb[op]   |= (1ULL << cap_sq); bb[Pawn] |= (1ULL << cap_sq);   // captured pawn back
             mb[from] = Pawn; mb[to] = 0; mb[cap_sq] = Pawn;
         } break;
 
         case 8: case 9: case 10: case 11: {          // promotion (no capture)
             int promo = mb[to];
-            bb[mp]    &= ~(1UL << to); bb[mp] |= (1UL << from);
-            bb[promo] &= ~(1UL << to);
-            bb[Pawn]  |= (1UL << from);
+            bb[mp]    &= ~(1ULL << to); bb[mp] |= (1ULL << from);
+            bb[promo] &= ~(1ULL << to);
+            bb[Pawn]  |= (1ULL << from);
             mb[from] = Pawn; mb[to] = 0;
         } break;
 
         case 12: case 13: case 14: case 15: {        // promotion with capture
             int promo = mb[to];
-            bb[mp]    &= ~(1UL << to); bb[mp] |= (1UL << from);
-            bb[promo] &= ~(1UL << to);
-            bb[Pawn]  |= (1UL << from);
+            bb[mp]    &= ~(1ULL << to); bb[mp] |= (1ULL << from);
+            bb[promo] &= ~(1ULL << to);
+            bb[Pawn]  |= (1ULL << from);
             mb[from] = Pawn;
             int cp = undo.captured;
-            bb[op] |= (1UL << to); bb[cp] |= (1UL << to);
+            bb[op] |= (1ULL << to); bb[cp] |= (1ULL << to);
             mb[to] = cp;
         } break;
     }
@@ -348,7 +348,7 @@ void make_null (Chess & board, Undo & undo) {
     // fold the cleared e.p. squares out of the key (only e.p. bits changed — castling untouched)
     uint64_t changes = (status_before ^ bb[status]) & ep_castling_mask;
     while (changes) {
-        int sq = __builtin_ctzl(changes);
+        int sq = std::countr_zero(changes);
         changes &= changes - 1;                                   // clear the lowest set bit
         board.tpt.zobrist_key_64 ^= zobrist.hash_piece[sq][0][0];
     }

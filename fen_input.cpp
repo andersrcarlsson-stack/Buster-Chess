@@ -12,7 +12,7 @@ Chess fen_input(std::string piece_placement_data, std::string active_color, std:
     char piece_data, castling_data;
     std::array <uint64_t, 9> board_setup {};
     std::vector <uint64_t> en_passant_squares {a3, b3, c3, d3, e3, f3, g3, h3, a6, b6, c6, d6, e6, f6, g6, h6};
-    uint64_t traveling_one {1UL << 63};
+    uint64_t traveling_one {1ULL << 63};
     std::array<uint16_t, 64> mailbox_start {};
     Chess status;
     status.bitboard.fill(0);
@@ -21,7 +21,7 @@ Chess fen_input(std::string piece_placement_data, std::string active_color, std:
     status.tpt.depth = 0;
     status.tpt.move = 0;
     status.tpt.value = 0;
-    status.tpt.zobrist_key_64 = 0UL;
+    status.tpt.zobrist_key_64 = 0ULL;
      
 
     // check for legitimate characters 
@@ -98,73 +98,73 @@ Chess fen_input(std::string piece_placement_data, std::string active_color, std:
                 case 'p': 
                     board_setup[1] |= traveling_one;
                     board_setup[2] |= traveling_one;
-                    status.mailbox[__builtin_ctzl(traveling_one)] = 2;
+                    status.mailbox[std::countr_zero(traveling_one)] = 2;
                     ++ rank_count;
                     break;
                 case 'n':
                     board_setup[1] |= traveling_one;
                     board_setup[3] |= traveling_one;
-                    status.mailbox[__builtin_ctzl(traveling_one)] = 3;
+                    status.mailbox[std::countr_zero(traveling_one)] = 3;
                     ++ rank_count;
                     break;
                 case 'b':
                     board_setup[1] |= traveling_one;
                     board_setup[4] |= traveling_one;
-                    status.mailbox[__builtin_ctzl(traveling_one)] = 4;
+                    status.mailbox[std::countr_zero(traveling_one)] = 4;
                     ++ rank_count;
                     break;
                 case 'r':
                     board_setup[1] |= traveling_one;
                     board_setup[5] |= traveling_one;
-                    status.mailbox[__builtin_ctzl(traveling_one)] = 5;
+                    status.mailbox[std::countr_zero(traveling_one)] = 5;
                     ++ rank_count;
                     break;
                 case 'q':
                     board_setup[1] |= traveling_one;
                     board_setup[6] |= traveling_one;
-                    status.mailbox[__builtin_ctzl(traveling_one)] = 6;
+                    status.mailbox[std::countr_zero(traveling_one)] = 6;
                     ++ rank_count;
                     break;
                 case 'k':
                     board_setup[1] |= traveling_one;
                     board_setup[7] |= traveling_one;
-                    status.mailbox[__builtin_ctzl(traveling_one)] = 7;
+                    status.mailbox[std::countr_zero(traveling_one)] = 7;
                     ++ rank_count;
                     break;
                 case 'P': 
                     board_setup[0] |= traveling_one;
                     board_setup[2] |= traveling_one;
-                    status.mailbox[__builtin_ctzl(traveling_one)] = 2;
+                    status.mailbox[std::countr_zero(traveling_one)] = 2;
                     ++ rank_count;
                     break;
                 case 'N':
                     board_setup[0] |= traveling_one;
                     board_setup[3] |= traveling_one;
-                    status.mailbox[__builtin_ctzl(traveling_one)] = 3;
+                    status.mailbox[std::countr_zero(traveling_one)] = 3;
                     ++ rank_count;
                     break;
                 case 'B':
                     board_setup[0] |= traveling_one;
                     board_setup[4] |= traveling_one;
-                    status.mailbox[__builtin_ctzl(traveling_one)] = 4;
+                    status.mailbox[std::countr_zero(traveling_one)] = 4;
                     ++ rank_count;
                     break;
                 case 'R':
                     board_setup[0] |= traveling_one;
                     board_setup[5] |= traveling_one;
-                    status.mailbox[__builtin_ctzl(traveling_one)] = 5;
+                    status.mailbox[std::countr_zero(traveling_one)] = 5;
                     ++ rank_count;
                     break;
                 case 'Q':
                     board_setup[0] |= traveling_one;
                     board_setup[6] |= traveling_one;
-                    status.mailbox[__builtin_ctzl(traveling_one)] = 6;
+                    status.mailbox[std::countr_zero(traveling_one)] = 6;
                     ++ rank_count;
                     break;
                 case 'K':
                     board_setup[0] |= traveling_one;
                     board_setup[7] |= traveling_one;
-                    status.mailbox[__builtin_ctzl(traveling_one)] = 7;
+                    status.mailbox[std::countr_zero(traveling_one)] = 7;
                     ++ rank_count;
                     break;
                 default:
@@ -172,7 +172,7 @@ Chess fen_input(std::string piece_placement_data, std::string active_color, std:
                     traveling_one >>= (gap - 1);
             }
             if (gap > 0) {
-                for (int fill = (__builtin_ctzl(traveling_one)); fill < __builtin_ctzl(traveling_one) + gap; ++fill) status.mailbox[fill] = 0;
+                for (int fill = (std::countr_zero(traveling_one)); fill < std::countr_zero(traveling_one) + gap; ++fill) status.mailbox[fill] = 0;
             }
             rank_count += gap;
             gap = 0;

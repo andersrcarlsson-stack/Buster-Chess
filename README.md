@@ -17,12 +17,16 @@ On **AMD Zen 1 and Zen 2** `PEXT` is microcoded and very slow, so Buster runs th
 of its speed. Zen 3 and later are fine.
 
 ```
-make            # builds ./buster with g++ (C++17), -O3 -march=native
+make            # builds ./buster with g++ (C++20), -O3 -march=native
 make check      # self-tests plus a perft count: confirms the build is correct
 ```
 
 `-march=native` optimises for the machine you compile on. To build a binary for other machines:
-`make CXXFLAGS="-O3 -march=haswell -mbmi2"`.
+`make CXXFLAGS="-std=c++20 -O3 -march=haswell -mbmi2"`.
+
+**Prebuilt binaries** for Linux (x86-64, fully static) and Windows (x86-64) are on the GitHub
+**Releases** page. They are built with `-march=haswell`, so they run on any CPU with BMI2. To build
+them yourself: `make release` (the Windows one needs the MinGW-w64 cross-compiler).
 
 ## Using it
 

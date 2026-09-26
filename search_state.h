@@ -146,7 +146,7 @@ class Static_Exchange_Evaluation {
 public:
     int SEE_Sort(Chess & Board);
     int see_value(Chess & Board, uint16_t move);   // swap-off for ONE move
-    u_int64_t attackers_to(Chess & board, int X, uint64_t occ);
+    uint64_t attackers_to(Chess & board, int X, uint64_t occ);
 };
 extern Static_Exchange_Evaluation SEE; // DECLARATION only — no initialiser
 

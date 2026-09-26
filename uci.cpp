@@ -66,10 +66,10 @@ uint16_t GUI_Interface::decode_cli_move (const Chess & Board, std::string move) 
     if (Board.mailbox[to_square] != 0) { 
         return buster_move + 4; // regular capture
     }
-    if (Board.mailbox[from_square] == Pawn and ((1UL << to_square) & (Board.bitboard[status] & (my_const::row_3_mask | my_const::row_6_mask)))) { 
+    if (Board.mailbox[from_square] == Pawn and ((1ULL << to_square) & (Board.bitboard[status] & (my_const::row_3_mask | my_const::row_6_mask)))) { 
         return buster_move + 5; // ep capture
     }
-    if (Board.mailbox[to_square] == 0 and !(Board.mailbox[from_square] == Pawn and (Board.bitboard[status] & ((1UL << to_square) & (my_const::row_3_mask | my_const::row_6_mask))))) { // regular quiet move - no ep !
+    if (Board.mailbox[to_square] == 0 and !(Board.mailbox[from_square] == Pawn and (Board.bitboard[status] & ((1ULL << to_square) & (my_const::row_3_mask | my_const::row_6_mask))))) { // regular quiet move - no ep !
     return buster_move; // the flag is 0 - no calculation needed !
     }
 
@@ -194,7 +194,7 @@ std::cout << "readyok" << std::endl;
 
 Chess GUI_Interface::handlePosition(std::vector<std::string> command) {
     Chess Board {};
-    u_int16_t buster_move;
+    uint16_t buster_move;
     std::string move;
     bool initial_pos_set {false};
     zobrist.position_list.clear();

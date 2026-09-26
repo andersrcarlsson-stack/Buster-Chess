@@ -37,7 +37,7 @@ int Static_Exchange_Evaluation::see_value(Chess & Board, uint16_t move) {
     gain[0] = my_const::piece_value[Board.mailbox[ev_square]];   // 0 when the square is empty
     int onsquare = Board.mailbox[from_sq];
     int side = 1 ^ Board.pit;
-    occ &= ~(1UL << from_sq);
+    occ &= ~(1ULL << from_sq);
     uint64_t attackers = my_const::knight_neighbors[ev_square] & Board.bitboard[Knight];
     attackers |= my_const::king_neighbors[ev_square] & Board.bitboard[King];
     attackers |= my_const::pawn_neighbors[Black][ev_square] & Board.bitboard[Pawn] & Board.bitboard[White];
@@ -51,11 +51,11 @@ int Static_Exchange_Evaluation::see_value(Chess & Board, uint16_t move) {
         if (lva == 0) break;
         for (int j = 2; j < 8; ++j) {
             if (lva & Board.bitboard[j]) {
-                ev_bit = (lva & Board.bitboard[j]) & (~(lva & Board.bitboard[j]) + 1UL);
+                ev_bit = (lva & Board.bitboard[j]) & (~(lva & Board.bitboard[j]) + 1ULL);
                 break;
             }
         }
-        piece = Board.mailbox[__builtin_ctzl(ev_bit)];
+        piece = Board.mailbox[std::countr_zero(ev_bit)];
         ++d;
         gain[d] = my_const::piece_value[onsquare] - gain[d-1];
         onsquare = piece;
@@ -96,7 +96,7 @@ int Static_Exchange_Evaluation::SEE_Sort(Chess & Board) {
 };
 
 // for SEE calculation - take the battle exchange square X, and the board occupancy occ and querry available lot:s for attackers 
-u_int64_t Static_Exchange_Evaluation::attackers_to(Chess & board, int X, uint64_t occ) {
+uint64_t Static_Exchange_Evaluation::attackers_to(Chess & board, int X, uint64_t occ) {
     uint64_t attackers = Lookup.diag.attacks(X, occ) & (board.bitboard[Bishop] | board.bitboard[Queen]);
     attackers |= Lookup.rank_file.attacks(X, occ) & (board.bitboard[Rook] | board.bitboard[Queen]); 
     

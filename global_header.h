@@ -21,5 +21,6 @@
 #include <charconv>
 #include <optional>
 #include <string_view>
+#include <bit>
 
 #endif

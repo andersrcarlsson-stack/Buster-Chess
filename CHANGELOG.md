@@ -1,5 +1,18 @@
 # Changelog
 
+## 7.0.2 — 2026-09-26
+
+**Windows support.** Search and evaluation are unchanged: on Linux, 7.0.2 searches exactly the same
+nodes as 7.0.1, so the 7.0 rating applies.
+
+- **Prebuilt binaries** for Linux x86-64 (fully static) and Windows x86-64, and a `make release`
+  target that builds both (the Windows one with the MinGW-w64 cross-compiler).
+- **64-bit-safe on every platform.** On Windows a `long` is only 32 bits, which silently cut
+  bitboards in half. Bit counting now uses the standard C++20 `<bit>` functions, and 64-bit constants
+  are `unsigned long long`, so the code means the same thing everywhere. The Windows build passes
+  the self-tests and matches the Linux perft counts and search node counts exactly.
+- Builds as **C++20**.
+
 ## 7.0.1 — 2026-09-25
 
 First public release. A bug-fix release on top of 7.0: search and evaluation are unchanged, so the

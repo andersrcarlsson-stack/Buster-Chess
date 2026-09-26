@@ -15,27 +15,27 @@ int evaluation (const Chess & Board) { // this pit is only for telling the evalu
     // --- draw recognition: material that can't force mate IS a draw -> return 0.
     // Removes the "+bishop" lie (KBvK etc.), and it's a speed win too (skips the whole eval).
     if (Board.bitboard[2] == 0 && Board.bitboard[5] == 0 && Board.bitboard[6] == 0) {   // no pawns, rooks, queens
-        int wm = __builtin_popcountl(Board.bitboard[0] & (Board.bitboard[3] | Board.bitboard[4])); // white minors
-        int bm = __builtin_popcountl(Board.bitboard[1] & (Board.bitboard[3] | Board.bitboard[4])); // black minors
+        int wm = std::popcount(Board.bitboard[0] & (Board.bitboard[3] | Board.bitboard[4])); // white minors
+        int bm = std::popcount(Board.bitboard[1] & (Board.bitboard[3] | Board.bitboard[4])); // black minors
         if (wm <= 1 && bm <= 1) return 0;                     // K(m) vs K(m): KvK, KBvK, KNvK, Km-vs-Km
         if (Board.bitboard[4] == 0 && ((wm == 2 && bm == 0) || (bm == 2 && wm == 0)))
             return 0;                                         // KNNvK (all-knight, 2 vs bare)
     }
 
-    int phase = __builtin_popcountl(Board.bitboard[3] | Board.bitboard[4]) + 
-                __builtin_popcountl(Board.bitboard[5] ) * 2 + 
-                __builtin_popcountl(Board.bitboard[6] ) * 4;  // numbers of n, b, r and q on the board with weights 1, 1, 2, 4
+    int phase = std::popcount(Board.bitboard[3] | Board.bitboard[4]) + 
+                std::popcount(Board.bitboard[5] ) * 2 + 
+                std::popcount(Board.bitboard[6] ) * 4;  // numbers of n, b, r and q on the board with weights 1, 1, 2, 4
 
     // Piece Value and Piece Square Values combined for one loop 
         for (int i = 0; i < 6; ++i) {
             set_bitboard = Board.bitboard[i + 2];
             while (set_bitboard) {
-                evaluated_bit = set_bitboard & (~set_bitboard + 1UL); // take the rightmost bit in set_bitboard and make it "evaluation_bit"
-                set_bitboard &= set_bitboard - 1UL; // remove the "evaluation_bit" from set_bitboard 
-                valuation[0] += (piece_square_tables[0][i][Board.pit][__builtin_ctzl(evaluated_bit)] * !!(Board.bitboard[Board.pit] & evaluated_bit)) - 
-                        (piece_square_tables[0][i][!Board.pit][__builtin_ctzl(evaluated_bit)] * !!(Board.bitboard[!Board.pit] & evaluated_bit));
-                valuation[1] += (piece_square_tables[1][i][Board.pit][__builtin_ctzl(evaluated_bit)] * !!(Board.bitboard[Board.pit] & evaluated_bit)) - 
-                        (piece_square_tables[1][i][!Board.pit][__builtin_ctzl(evaluated_bit)] * !!(Board.bitboard[!Board.pit] & evaluated_bit));
+                evaluated_bit = set_bitboard & (~set_bitboard + 1ULL); // take the rightmost bit in set_bitboard and make it "evaluation_bit"
+                set_bitboard &= set_bitboard - 1ULL; // remove the "evaluation_bit" from set_bitboard 
+                valuation[0] += (piece_square_tables[0][i][Board.pit][std::countr_zero(evaluated_bit)] * !!(Board.bitboard[Board.pit] & evaluated_bit)) - 
+                        (piece_square_tables[0][i][!Board.pit][std::countr_zero(evaluated_bit)] * !!(Board.bitboard[!Board.pit] & evaluated_bit));
+                valuation[1] += (piece_square_tables[1][i][Board.pit][std::countr_zero(evaluated_bit)] * !!(Board.bitboard[Board.pit] & evaluated_bit)) - 
+                        (piece_square_tables[1][i][!Board.pit][std::countr_zero(evaluated_bit)] * !!(Board.bitboard[!Board.pit] & evaluated_bit));
             }
         }
     
@@ -58,46 +58,46 @@ int evaluation (const Chess & Board) { // this pit is only for telling the evalu
 
             piece_bb =  Board.bitboard[c] & Board.bitboard[Knight]; // all knights from "c" (pit)
             while (piece_bb) {  // loop all Knights from color "c"
-                ev_square = __builtin_ctzll(piece_bb);
+                ev_square = std::countr_zero(piece_bb);
                 atk = my_const::knight_neighbors[ev_square]; 
                 can_reach[c][Knight] |= atk; // union → king safety later (raw)
-                count = __builtin_popcountll(atk & mob_area[c]);
+                count = std::popcount(atk & mob_area[c]);
                 mob[c].mg += mob_bonus_knight[count].mg;
                 mob[c].eg += mob_bonus_knight[count].eg;
-                piece_bb &= piece_bb - 1UL; // clear lowest set bit from piece_bb
+                piece_bb &= piece_bb - 1ULL; // clear lowest set bit from piece_bb
             }
 
             piece_bb =  Board.bitboard[c] & Board.bitboard[Bishop]; // all bishops from "c" (pit)
             while (piece_bb) {  // loop all Bishops from color "c"
-                ev_square = __builtin_ctzll(piece_bb);
+                ev_square = std::countr_zero(piece_bb);
                 atk = Lookup.diag.attacks(ev_square, occ); 
                 can_reach[c][Bishop] |= atk; // union → king safety later (raw)
-                count = __builtin_popcountll(atk & mob_area[c]);
+                count = std::popcount(atk & mob_area[c]);
                 mob[c].mg += mob_bonus_bishop[count].mg;
                 mob[c].eg += mob_bonus_bishop[count].eg;                
-                piece_bb &= piece_bb - 1UL; // clear lowest set bit from piece_bb
+                piece_bb &= piece_bb - 1ULL; // clear lowest set bit from piece_bb
             }
             
             piece_bb =  Board.bitboard[c] & Board.bitboard[Rook];
             while (piece_bb) {  // loop all Rooks from color "c"
-                ev_square = __builtin_ctzll(piece_bb);
+                ev_square = std::countr_zero(piece_bb);
                 atk = Lookup.rank_file.attacks(ev_square, occ); 
                 can_reach[c][Rook] |= atk; // union → king safety later (raw)
-                count = __builtin_popcountll(atk & mob_area[c]);
+                count = std::popcount(atk & mob_area[c]);
                 mob[c].mg += mob_bonus_rook[count].mg;
                 mob[c].eg += mob_bonus_rook[count].eg;
-                piece_bb &= piece_bb - 1UL; // clear lowest set bit from piece_bb
+                piece_bb &= piece_bb - 1ULL; // clear lowest set bit from piece_bb
             }
 
             piece_bb =  Board.bitboard[c] & Board.bitboard[Queen];
             while (piece_bb) {  // loop all Queens from color "c"
-                ev_square = __builtin_ctzll(piece_bb); 
+                ev_square = std::countr_zero(piece_bb); 
                 atk = Lookup.diag.attacks(ev_square, occ) | Lookup.rank_file.attacks(ev_square, occ); 
                 can_reach[c][Queen] |= atk; // union → king safety later (raw)
-                count = __builtin_popcountll(atk & mob_area[c]);
+                count = std::popcount(atk & mob_area[c]);
                 mob[c].mg += mob_bonus_queen[count].mg;
                 mob[c].eg += mob_bonus_queen[count].eg;
-                piece_bb &= piece_bb - 1UL; // clear lowest set bit from piece_bb
+                piece_bb &= piece_bb - 1ULL; // clear lowest set bit from piece_bb
             }
         }
 
@@ -109,12 +109,12 @@ int evaluation (const Chess & Board) { // this pit is only for telling the evalu
         std::array<int, 2> king_danger {};
 
         for (int c = 0; c < 2; ++c) {
-            int king_sq   = __builtin_ctzll(Board.bitboard[King] & Board.bitboard[c]);
+            int king_sq   = std::countr_zero(Board.bitboard[King] & Board.bitboard[c]);
             uint64_t zone = my_const::king_safety[c][king_sq];
-            int units = king_attack_weight[Knight] * __builtin_popcountll(can_reach[1 - c][Knight] & zone)
-                      + king_attack_weight[Bishop] * __builtin_popcountll(can_reach[1 - c][Bishop] & zone)
-                      + king_attack_weight[Rook]   * __builtin_popcountll(can_reach[1 - c][Rook]   & zone)
-                      + king_attack_weight[Queen]  * __builtin_popcountll(can_reach[1 - c][Queen]  & zone);
+            int units = king_attack_weight[Knight] * std::popcount(can_reach[1 - c][Knight] & zone)
+                      + king_attack_weight[Bishop] * std::popcount(can_reach[1 - c][Bishop] & zone)
+                      + king_attack_weight[Rook]   * std::popcount(can_reach[1 - c][Rook]   & zone)
+                      + king_attack_weight[Queen]  * std::popcount(can_reach[1 - c][Queen]  & zone);
             king_danger[c] = std::min(units * units / 4, 500);   // quadratic, capped (cp). DIV=4, CAP=500 = the tunables
         }
 
@@ -127,13 +127,13 @@ int evaluation (const Chess & Board) { // this pit is only for telling the evalu
             uint64_t enemy_pawns = Board.bitboard[Pawn] & Board.bitboard[1 - c];
             uint64_t bb          = Board.bitboard[Pawn] & Board.bitboard[c];
             while (bb) {
-                int sq = __builtin_ctzll(bb);
+                int sq = std::countr_zero(bb);
                 if ((Lookup.passed_pawn[c][sq] & enemy_pawns) == 0) {          // passed!
                     int rel_rank = (c == White) ? (sq >> 3) : (7 - (sq >> 3)); // advance toward promotion
                     passed[c].mg += passed_bonus[rel_rank].mg;
                     passed[c].eg += passed_bonus[rel_rank].eg;
                 }
-                bb &= bb - 1UL;
+                bb &= bb - 1ULL;
             }
         }
         valuation[0] += passed[Board.pit].mg - passed[!Board.pit].mg;
@@ -145,7 +145,7 @@ int evaluation (const Chess & Board) { // this pit is only for telling the evalu
             uint64_t own_pawns = Board.bitboard[Pawn] & Board.bitboard[c];
             for (int f = 0; f < 8; ++f) {
                 uint64_t file_bb = 0x0101010101010101ULL << f;
-                int n = __builtin_popcountll(file_bb & own_pawns);
+                int n = std::popcount(file_bb & own_pawns);
                 if (n == 0) continue;
                 uint64_t adj = ((f > 0) ? (0x0101010101010101ULL << (f - 1)) : 0)
                              | ((f < 7) ? (0x0101010101010101ULL << (f + 1)) : 0);
@@ -165,7 +165,7 @@ int evaluation (const Chess & Board) { // this pit is only for telling the evalu
         // --- bishop pair ---
         std::array<TScore, 2> bishoppair {};
         for (int c = 0; c < 2; ++c)
-            if (__builtin_popcountll(Board.bitboard[Bishop] & Board.bitboard[c]) >= 2) {
+            if (std::popcount(Board.bitboard[Bishop] & Board.bitboard[c]) >= 2) {
                 bishoppair[c].mg += bishop_pair_bonus.mg;
                 bishoppair[c].eg += bishop_pair_bonus.eg;
             }
@@ -179,14 +179,14 @@ int evaluation (const Chess & Board) { // this pit is only for telling the evalu
             uint64_t own_pawns = Board.bitboard[Pawn] & Board.bitboard[c];
             uint64_t bb        = Board.bitboard[Rook] & Board.bitboard[c];
             while (bb) {
-                int sq = __builtin_ctzll(bb);
+                int sq = std::countr_zero(bb);
                 uint64_t file_bb = 0x0101010101010101ULL << (sq & 7);
                 if ((file_bb & all_pawns) == 0) {              // open
                     rookfile[c].mg += rook_open.mg; rookfile[c].eg += rook_open.eg;
                 } else if ((file_bb & own_pawns) == 0) {       // semi-open
                     rookfile[c].mg += rook_semi.mg; rookfile[c].eg += rook_semi.eg;
                 }
-                bb &= bb - 1UL;
+                bb &= bb - 1ULL;
             }
         }
         valuation[0] += rookfile[Board.pit].mg - rookfile[!Board.pit].mg;
@@ -196,13 +196,13 @@ int evaluation (const Chess & Board) { // this pit is only for telling the evalu
         // Pure OCB + pawn diff <= 1 -> downscale the eg component toward 0 (taper, NOT a hard cut). Bigger pawn
         // advantages are left alone so a genuinely winning OCB isn't drawn away — the search converts those.
         if (Board.bitboard[3] == 0 && Board.bitboard[5] == 0 && Board.bitboard[6] == 0   // no knights/rooks/queens
-            && __builtin_popcountl(Board.bitboard[0] & Board.bitboard[4]) == 1  // one white bishop
-            && __builtin_popcountl(Board.bitboard[1] & Board.bitboard[4]) == 1) {  // one black bishop
+            && std::popcount(Board.bitboard[0] & Board.bitboard[4]) == 1  // one white bishop
+            && std::popcount(Board.bitboard[1] & Board.bitboard[4]) == 1) {  // one black bishop
             constexpr uint64_t LIGHT = 0x55AA55AA55AA55AAULL;
             bool wb_light = Board.bitboard[0] & Board.bitboard[4] & LIGHT;
             bool bb_light = Board.bitboard[1] & Board.bitboard[4] & LIGHT;
-            int pawn_diff = __builtin_popcountl(Board.bitboard[0] & Board.bitboard[2])
-                          - __builtin_popcountl(Board.bitboard[1] & Board.bitboard[2]);
+            int pawn_diff = std::popcount(Board.bitboard[0] & Board.bitboard[2])
+                          - std::popcount(Board.bitboard[1] & Board.bitboard[2]);
             if (wb_light != bb_light && pawn_diff >= -1 && pawn_diff <= 1)  // OCB, ~level material
                 valuation[1] = valuation[1] * 8 / 64; // heavy downscale (~1/8)
         }
@@ -223,7 +223,7 @@ int evaluation (const Chess & Board) { // this pit is only for telling the evalu
             constexpr int fortress_scale[4] = { 4, 4, 16, 32 };   // by king distance, /64
             for (int c = 0; c < 2; ++c) {
                 const uint64_t strong = Board.bitboard[c], weak = Board.bitboard[1 - c];
-                const int nb = __builtin_popcountl(Board.bitboard[Bishop] & strong);
+                const int nb = std::popcount(Board.bitboard[Bishop] & strong);
                 if (nb > 1) continue;   // >1 bishop -> can cover both colours
                 if (Board.bitboard[Bishop] & weak) continue;
                 const uint64_t sp = Board.bitboard[Pawn] & strong;
@@ -236,7 +236,7 @@ int evaluation (const Chess & Board) { // this pit is only for telling the evalu
                 constexpr uint64_t LIGHT = 0x55AA55AA55AA55AAULL;
                 if (nb == 1 && ((Board.bitboard[Bishop] & strong & LIGHT) != 0)
                             == (((1ULL << prom) & LIGHT) != 0)) continue;  // bishop covers it -> winnable
-                const int wk = __builtin_ctzl(Board.bitboard[King] & weak);
+                const int wk = std::countr_zero(Board.bitboard[King] & weak);
                 const int d  = std::max(std::abs((wk >> 3) - (prom >> 3)),
                                         std::abs((wk & 7)  - (prom & 7)));
                 if (d <= 3) {  // scale BOTH phases: the fortress is not a
@@ -258,12 +258,12 @@ int evaluation (const Chess & Board) { // this pit is only for telling the evalu
             const uint64_t strong = Board.bitboard[c], weak = Board.bitboard[!c];
             if ((strong & Board.bitboard[Pawn]) == 0) {
                 auto npm = [&](uint64_t side) {                               // non-pawn material, pawn units
-                    return 3 * __builtin_popcountl(side & (Board.bitboard[Knight] | Board.bitboard[Bishop]))
-                         + 5 * __builtin_popcountl(side & Board.bitboard[Rook])
-                         + 9 * __builtin_popcountl(side & Board.bitboard[Queen]);
+                    return 3 * std::popcount(side & (Board.bitboard[Knight] | Board.bitboard[Bishop]))
+                         + 5 * std::popcount(side & Board.bitboard[Rook])
+                         + 9 * std::popcount(side & Board.bitboard[Queen]);
                 };
                 const int ns = npm(strong), nw = npm(weak);
-                const bool kbbkn = ns == 6 && __builtin_popcountl(strong & Board.bitboard[Bishop]) == 2
+                const bool kbbkn = ns == 6 && std::popcount(strong & Board.bitboard[Bishop]) == 2
                                 && nw == 3 && (weak & Board.bitboard[Knight]);
                 if (ns - nw <= 3 && !kbbkn) {
                     const int scale = ns < 5 ? 0 : (nw <= 3 ? 4 : 14);          // /64

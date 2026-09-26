@@ -23,28 +23,28 @@ extern Initiation Lookup;      // name-match, no initialiser
 
 class Support { 
     public:
-    void from_to (uint64_t from, uint64_t moves, uint flags, MoveList &move_list) {
+    void from_to (uint64_t from, uint64_t moves, unsigned flags, MoveList &move_list) {
         uint64_t to;
         uint16_t single_move;
         
         while (moves) {
-            to = moves & (~moves + 1UL); // take the rightmost bit in "moves" and make it a single "to"
-            moves &= moves - 1UL; // remove the single "to" from "moves" 
-            single_move = __builtin_ctzll(from) << 10 | __builtin_ctzll(to) << 4 | flags;
+            to = moves & (~moves + 1ULL); // take the rightmost bit in "moves" and make it a single "to"
+            moves &= moves - 1ULL; // remove the single "to" from "moves" 
+            single_move = std::countr_zero(from) << 10 | std::countr_zero(to) << 4 | flags;
             move_list.push_back(single_move);
         }
 
         return;
     }
 
-    void capture (uint64_t from, uint64_t moves, uint flags, MoveList &capture_list) {
+    void capture (uint64_t from, uint64_t moves, unsigned flags, MoveList &capture_list) {
         uint64_t to;
         uint16_t single_move;
         
         while (moves) {
-            to = moves & (~moves + 1UL); // take the rightmost bit in "moves" and make it a single "to"
-            moves &= moves - 1UL; // remove the single "to" from "moves" 
-            single_move = __builtin_ctzl(from) << 10 | __builtin_ctzl(to) << 4 | flags;
+            to = moves & (~moves + 1ULL); // take the rightmost bit in "moves" and make it a single "to"
+            moves &= moves - 1ULL; // remove the single "to" from "moves" 
+            single_move = std::countr_zero(from) << 10 | std::countr_zero(to) << 4 | flags;
             capture_list.push_back(single_move);
         }
 
@@ -54,8 +54,8 @@ class Support {
     void from_to_promotion (uint64_t from, uint64_t to, MoveList &move_list) {
         uint16_t single_move;
 
-        for (uint i = 8; i < 12; ++i) { // generate 4 moves with flag 8, 9, 10, 11
-            single_move = __builtin_ctzl(from) << 10 | __builtin_ctzl(to) << 4 | i;
+        for (unsigned i = 8; i < 12; ++i) { // generate 4 moves with flag 8, 9, 10, 11
+            single_move = std::countr_zero(from) << 10 | std::countr_zero(to) << 4 | i;
             move_list.push_back(single_move);
         }
 
@@ -67,10 +67,10 @@ class Support {
         uint16_t single_move;
 
         while (moves) {
-            to = moves & (~moves + 1UL); // take the rightmost bit in "moves" and make it a single "to"
-            moves &= moves - 1UL; // remove the single "to" from "moves" 
-            for (uint j = 12; j < 16; ++j) { // generate 4 moves with flag 12, 13, 14, 15
-                single_move = __builtin_ctzl(from) << 10 | __builtin_ctzl(to) << 4 | j;
+            to = moves & (~moves + 1ULL); // take the rightmost bit in "moves" and make it a single "to"
+            moves &= moves - 1ULL; // remove the single "to" from "moves" 
+            for (unsigned j = 12; j < 16; ++j) { // generate 4 moves with flag 12, 13, 14, 15
+                single_move = std::countr_zero(from) << 10 | std::countr_zero(to) << 4 | j;
                 capture_list.push_back(single_move);
             }
         }

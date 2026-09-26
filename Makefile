@@ -1,5 +1,5 @@
 CXX      = g++
-CXXFLAGS = -O3 -march=native -mbmi2 -Wall -Wextra
+CXXFLAGS = -std=c++20 -O3 -march=native -mbmi2 -Wall -Wextra
 
 OBJ     = initiation_support.o fen_input.o main.o testharness.o uci.o eval.o search.o movepicker.o \
           movegen.o position.o search_state.o tt.o tables.o
@@ -26,13 +26,33 @@ check: buster
 
 # make asan — a separate binary, buster_asan, with AddressSanitizer and UndefinedBehaviorSanitizer.
 # Built straight from the sources, so it never mixes with the optimised object files.
-ASAN_FLAGS = -O1 -g -fno-omit-frame-pointer -march=native -mbmi2 \
+ASAN_FLAGS = -std=c++20 -O1 -g -fno-omit-frame-pointer -march=native -mbmi2 \
              -fsanitize=address,undefined -fsanitize-recover=address,undefined
 
 asan: $(OBJ:.o=.cpp) $(HEADERS)
 	$(CXX) $(ASAN_FLAGS) $(OBJ:.o=.cpp) -o buster_asan
 
+# ---- Release binaries --------------------------------------------------------------------
+# Portable builds for publishing: -march=haswell (any CPU with BMI2), not -march=native.
+#   make release-linux     fully static x86-64 Linux binary (runs on any distribution)
+#   make release-windows   x86-64 Windows .exe, cross-compiled with MinGW-w64 (static, no DLLs)
+#   make release           both, into release/, named with the engine version
+VERSION       := $(shell grep -oP 'engine_version = "\K[^"]+' global_constants.h)
+RELEASE_FLAGS  = -std=c++20 -O3 -march=haswell -mbmi2 -Wall -Wextra -static -s
+MINGW         ?= x86_64-w64-mingw32-g++
+
+release-linux: $(OBJ:.o=.cpp) $(HEADERS)
+	mkdir -p release
+	$(CXX) $(RELEASE_FLAGS) $(OBJ:.o=.cpp) -o release/buster-$(VERSION)-linux-x86_64
+
+release-windows: $(OBJ:.o=.cpp) $(HEADERS)
+	mkdir -p release
+	$(MINGW) $(RELEASE_FLAGS) $(OBJ:.o=.cpp) -o release/buster-$(VERSION)-windows-x86_64.exe
+
+release: release-linux release-windows
+
 clean:
 	rm -f $(OBJ) buster buster_asan
+	rm -rf release
 
-.PHONY: check asan clean
+.PHONY: check asan clean release release-linux release-windows

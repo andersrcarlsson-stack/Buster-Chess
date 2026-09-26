@@ -10,8 +10,8 @@
 void generate_moves(Chess & Board) { 
     
     // variable declaration for this function
-    uint64_t piece_bb, ev_bit, ev_bit_2, from, move_to_bits, en_passant_bit, under_attack_bb = 0UL, king_rays, 
-             pinners, pinned_piece, diag_pinned_bb {~0UL}, r_f_pinned_bb {~0UL}, r_f_pinned_pawn_bb {~0UL};
+    uint64_t piece_bb, ev_bit, ev_bit_2, from, move_to_bits, en_passant_bit, under_attack_bb = 0ULL, king_rays, 
+             pinners, pinned_piece, diag_pinned_bb {~0ULL}, r_f_pinned_bb {~0ULL}, r_f_pinned_pawn_bb {~0ULL};
     int ev_square, ev_square_2;
     std::array<int, 65> diag_pinned_pointer; // NOT filled — see pinned_any below
     std::array<int, 65> r_f_pinned_pointer; 
@@ -29,38 +29,38 @@ void generate_moves(Chess & Board) {
     // attacked by Bishops and Queens 
     piece_bb =  Board.bitboard[!pit] & (Board.bitboard[Bishop] | Board.bitboard[Queen]);
     while (piece_bb) {
-        ev_square = __builtin_ctzll(piece_bb); 
+        ev_square = std::countr_zero(piece_bb); 
         under_attack_bb |= Lookup.diag.attacks(ev_square, (Board.bitboard[pit] & ~Board.bitboard[King]) | Board.bitboard[!pit]);
-        piece_bb &= piece_bb - 1UL;
+        piece_bb &= piece_bb - 1ULL;
     }
 
     // attacked by Rooks and Queens 
     piece_bb =  Board.bitboard[!pit] & (Board.bitboard[Rook] | Board.bitboard[Queen]);
     while (piece_bb) { // loop all opposition Bishops and Queens on the board
-        ev_square = __builtin_ctzll(piece_bb); 
+        ev_square = std::countr_zero(piece_bb); 
         under_attack_bb |= Lookup.rank_file.attacks(ev_square, (Board.bitboard[pit] & ~Board.bitboard[King]) | Board.bitboard[!pit]);
-        piece_bb &= piece_bb - 1UL;
+        piece_bb &= piece_bb - 1ULL;
     }
 
     // attacked by Knights
     piece_bb = Board.bitboard[!pit] & Board.bitboard[Knight];
     while (piece_bb) {  // loop all Knights on the board
-        ev_square = __builtin_ctzll(piece_bb); 
+        ev_square = std::countr_zero(piece_bb); 
         under_attack_bb |= my_const::knight_neighbors[ev_square];
-        piece_bb &= piece_bb - 1UL;
+        piece_bb &= piece_bb - 1ULL;
     }
 
     // attacked by Pawns
     piece_bb = Board.bitboard[!pit] & Board.bitboard[Pawn];
     while (piece_bb) {  // loop all Knights on the board
-        ev_square = __builtin_ctzll(piece_bb); 
+        ev_square = std::countr_zero(piece_bb); 
         under_attack_bb |= my_const::pawn_neighbors[!pit][ev_square];
-        piece_bb &= piece_bb - 1UL;
+        piece_bb &= piece_bb - 1ULL;
     }
 
     // attacked by King
     piece_bb =  Board.bitboard[!pit] & Board.bitboard[King]; // there will be only one king - make it "evaluation_bit"
-    under_attack_bb |= my_const::king_neighbors[__builtin_ctzll(piece_bb)];
+    under_attack_bb |= my_const::king_neighbors[std::countr_zero(piece_bb)];
     King_in_Check = Board.bitboard[pit] & Board.bitboard[King] & under_attack_bb; // flag "King_in_Check" is set when pit king is under attack
 
     // pinned pieces analysis
@@ -70,33 +70,33 @@ void generate_moves(Chess & Board) {
     // loop the found pinners and generate their action area (same as move_to) - pinners_rays
     // then pinned pieces are found with pinners_rays (internal) AND kings_rays
     ev_bit =  Board.bitboard[pit] & Board.bitboard[King]; // there will be only one king - make it "evaluation_bit" 
-    ev_square = __builtin_ctzll(ev_bit); //  
+    ev_square = std::countr_zero(ev_bit); //  
     king_rays = ~Board.bitboard[!pit] & Lookup.diag.attacks(ev_square, all_pop);
-    pinners = Board.bitboard[!pit] & (Board.bitboard[Bishop] | Board.bitboard[Queen]) & Lookup.diag.attacks(ev_square, 0UL);
+    pinners = Board.bitboard[!pit] & (Board.bitboard[Bishop] | Board.bitboard[Queen]) & Lookup.diag.attacks(ev_square, 0ULL);
     while (pinners) {  // loop all diag pinners - max 4 of them 
-        ev_bit_2 = pinners & (~pinners + 1UL); // take the rightmost bit in diag_pinners and make it a new "evaluation_bit_2"
-        pinners &= pinners - 1UL; // remove the "evaluation_bit_2" from diag_pinners 
-        ev_square_2 = __builtin_ctzll(ev_bit_2); 
+        ev_bit_2 = pinners & (~pinners + 1ULL); // take the rightmost bit in diag_pinners and make it a new "evaluation_bit_2"
+        pinners &= pinners - 1ULL; // remove the "evaluation_bit_2" from diag_pinners 
+        ev_square_2 = std::countr_zero(ev_bit_2); 
         // pinned pieces within one pinners rays and the king rays
         pinned_piece = king_rays & (~Board.bitboard[!pit] & Lookup.diag.attacks(ev_square_2, all_pop));
         if (!pinned_piece) continue;   // 2+ pieces between king and slider: rays never meet, no pin (and ctz(0) is UB)
         // turn pinned_piece into a square - find the common diagonal beween pinner and the kings square -- keep in a matrix [pinned_piece] of 64 - use in generation
-        diag_pinned_pointer[__builtin_ctzll(pinned_piece)] = my_const::diagonal_pointer[ev_square_2][0] * (my_const::diagonal_pointer[ev_square][0] == my_const::diagonal_pointer[ev_square_2][0]) + 
+        diag_pinned_pointer[std::countr_zero(pinned_piece)] = my_const::diagonal_pointer[ev_square_2][0] * (my_const::diagonal_pointer[ev_square][0] == my_const::diagonal_pointer[ev_square_2][0]) + 
                                                         my_const::diagonal_pointer[ev_square_2][1] * (my_const::diagonal_pointer[ev_square][0] != my_const::diagonal_pointer[ev_square_2][0]);
         diag_pinned_bb &= ~pinned_piece;
-        r_f_pinned_pointer[__builtin_ctzll(pinned_piece)] = 17; // when pinned diagonal - set pinned rank/file to return 0 since both cannot exist in parallell
+        r_f_pinned_pointer[std::countr_zero(pinned_piece)] = 17; // when pinned diagonal - set pinned rank/file to return 0 since both cannot exist in parallell
     }
     
     king_rays = ~Board.bitboard[!pit] & Lookup.rank_file.attacks(ev_square, all_pop);
-    pinners = Board.bitboard[!pit] & (Board.bitboard[Rook] | Board.bitboard[Queen]) & Lookup.rank_file.attacks(ev_square, 0UL);
+    pinners = Board.bitboard[!pit] & (Board.bitboard[Rook] | Board.bitboard[Queen]) & Lookup.rank_file.attacks(ev_square, 0ULL);
     while (pinners) {  // loop all diag pinners - max 4 of them 
-        ev_bit_2 = pinners & (~pinners + 1UL); // take the rightmost bit in diag_pinners and make it a new "evaluation_bit_2"
-        pinners &= pinners - 1UL;// remove the "evaluation_bit_2" from diag_pinners 
-        ev_square_2 = __builtin_ctzll(ev_bit_2); 
+        ev_bit_2 = pinners & (~pinners + 1ULL); // take the rightmost bit in diag_pinners and make it a new "evaluation_bit_2"
+        pinners &= pinners - 1ULL;// remove the "evaluation_bit_2" from diag_pinners 
+        ev_square_2 = std::countr_zero(ev_bit_2); 
         // pinned pieces within one pinners rays and the king rays
         pinned_piece = king_rays & (~Board.bitboard[!pit] & Lookup.rank_file.attacks(ev_square_2, all_pop));
         if (!pinned_piece) continue;   // 2+ pieces between king and slider: rays never meet, no pin (and ctz(0) is UB)
-        int pinned_piece_square = __builtin_ctzll(pinned_piece);
+        int pinned_piece_square = std::countr_zero(pinned_piece);
         // turn pinned_piece into a square - find the diagonal beween pinner and the kings square -- keep in a matrix [pinned_piece] of 64 - use in generation
         r_f_pinned_pointer[pinned_piece_square] = my_const::ranks_and_files_pointer[ev_square_2][0] * (my_const::ranks_and_files_pointer[ev_square][0] == my_const::ranks_and_files_pointer[ev_square_2][0]) + 
                                                     my_const::ranks_and_files_pointer[ev_square_2][1] * (my_const::ranks_and_files_pointer[ev_square][0] != my_const::ranks_and_files_pointer[ev_square_2][0]);
@@ -107,19 +107,19 @@ void generate_moves(Chess & Board) {
     }
 
     // Only pinned squares ever got a table entry written; every other square is unrestricted,
-    // i.e. exactly diagonals[26] / ranks_and_files[16] == ~0UL. So the two 65-entry .fill()s
+    // i.e. exactly diagonals[26] / ranks_and_files[16] == ~0ULL. So the two 65-entry .fill()s
     // (520 B of stores on EVERY node, for tables that are almost always entirely default) are
     // not needed at all — guard the six read sites instead.
     uint64_t pinned_any = ~(diag_pinned_bb & r_f_pinned_bb);
-    auto dmask = [&](uint64_t bit, int sq) { return (bit & pinned_any) ? my_const::diagonals[diag_pinned_pointer[sq]] : ~0UL; };
-    auto rmask = [&](uint64_t bit, int sq) { return (bit & pinned_any) ? my_const::ranks_and_files[r_f_pinned_pointer[sq]] : ~0UL; };
+    auto dmask = [&](uint64_t bit, int sq) { return (bit & pinned_any) ? my_const::diagonals[diag_pinned_pointer[sq]] : ~0ULL; };
+    auto rmask = [&](uint64_t bit, int sq) { return (bit & pinned_any) ? my_const::ranks_and_files[r_f_pinned_pointer[sq]] : ~0ULL; };
 
     // generates moves for pawns (only simple move forward including promotion)
     piece_bb =  (((((Board.bitboard[pit] & Board.bitboard[Pawn] & diag_pinned_bb & r_f_pinned_pawn_bb) << 8) & no_pop) & my_const::pit_on_off[!pit]) |
                     ((((Board.bitboard[pit] & Board.bitboard[Pawn] & diag_pinned_bb & r_f_pinned_pawn_bb) >> 8) & no_pop) & my_const::pit_on_off[pit]));
     while (piece_bb) {
-        ev_bit = piece_bb & (~piece_bb + 1UL); // take the rightmost bit in piece_bb and make it the "evaluation_bit"
-        piece_bb &= piece_bb - 1UL;  // remove the "evaluation_bit" from piece_bb (remove one pawn if there is more than one)
+        ev_bit = piece_bb & (~piece_bb + 1ULL); // take the rightmost bit in piece_bb and make it the "evaluation_bit"
+        piece_bb &= piece_bb - 1ULL;  // remove the "evaluation_bit" from piece_bb (remove one pawn if there is more than one)
         from = (((ev_bit >> 8) & my_const::pit_on_off[!pit]) | ((ev_bit << 8) & my_const::pit_on_off[pit]));
         if (!(ev_bit & (my_const::row_1_mask | my_const::row_8_mask))) Move.from_to (from, ev_bit, 0, move_list);
         else Move.from_to_promotion(from, ev_bit, move_list);
@@ -129,8 +129,8 @@ void generate_moves(Chess & Board) {
     piece_bb =  ((((Board.bitboard[pit] & Board.bitboard[Pawn] & diag_pinned_bb & r_f_pinned_pawn_bb & my_const::row_2_mask) << 16) & ((no_pop & my_const::row_3_mask) << 8) & (no_pop & my_const::row_4_mask)) & my_const::pit_on_off[!pit]) |
                     ((((Board.bitboard[pit] & Board.bitboard[Pawn] & diag_pinned_bb & r_f_pinned_pawn_bb & my_const::row_7_mask) >> 16) & ((no_pop & my_const::row_6_mask) >> 8) & (no_pop & my_const::row_5_mask)) & my_const::pit_on_off[pit]);
     while (piece_bb) {
-        ev_bit = piece_bb & (~piece_bb + 1UL); // take the rightmost bit in set_bitboard and make it the "evaluation_bit"
-        piece_bb &= piece_bb - 1UL; // remove the "evaluation_bit" from piece_bb (remove one pawn if there is more than one)
+        ev_bit = piece_bb & (~piece_bb + 1ULL); // take the rightmost bit in set_bitboard and make it the "evaluation_bit"
+        piece_bb &= piece_bb - 1ULL; // remove the "evaluation_bit" from piece_bb (remove one pawn if there is more than one)
         from = (((ev_bit >> 16) & my_const::pit_on_off[!pit])| ((ev_bit << 16) & my_const::pit_on_off[pit]));
         Move.from_to (from, ev_bit, 1, move_list);
     }
@@ -138,9 +138,9 @@ void generate_moves(Chess & Board) {
     // generates captures for pawn including capture and promation
     piece_bb =  Board.bitboard[pit] & Board.bitboard[Pawn] & r_f_pinned_bb;
     while (piece_bb) { // loop all pawns on the board
-        ev_bit = piece_bb & (~piece_bb + 1UL); // take the rightmost bit in set_bitboard and make it the "evaluation_bit"
-        piece_bb &= piece_bb - 1UL; // remove the "evaluation_bit" from piece_bb (remove one Knight if there is more than one)
-        ev_square = __builtin_ctzll(ev_bit); 
+        ev_square = std::countr_zero(piece_bb); // lowest pawn; piece_bb != 0 here (loop condition), so 0..63
+        ev_bit = piece_bb & (~piece_bb + 1ULL); // take the rightmost bit in set_bitboard and make it the "evaluation_bit"
+        piece_bb &= piece_bb - 1ULL; // remove the "evaluation_bit" from piece_bb (remove one Knight if there is more than one)
         move_to_bits = my_const::pawn_neighbors[pit][ev_square] & Board.bitboard[!pit] & ~Board.bitboard[King] & dmask(ev_bit, ev_square);
         en_passant_bit =  my_const::pawn_neighbors[pit][ev_square] & Board.bitboard[status] & (my_const::row_6_mask | my_const::row_3_mask) & dmask(ev_bit, ev_square);
 
@@ -152,14 +152,14 @@ void generate_moves(Chess & Board) {
         // target square).
         if (en_passant_bit) {
             uint64_t king_bit  = Board.bitboard[pit] & Board.bitboard[King];
-            uint64_t rank_mask = 0xFFUL << (ev_square & 56);              // rank of the capturing pawn
+            uint64_t rank_mask = 0xFFULL << (ev_square & 56);              // rank of the capturing pawn
 
             if (king_bit & rank_mask) {                                   // king shares that rank
-                int      ep_sq     = __builtin_ctzll(en_passant_bit);
-                uint64_t file_mask = 0x0101010101010101UL << (ep_sq & 7); // file of the e.p. target
+                int      ep_sq     = std::countr_zero(en_passant_bit);
+                uint64_t file_mask = 0x0101010101010101ULL << (ep_sq & 7); // file of the e.p. target
                 uint64_t captured  = Board.bitboard[!pit] & Board.bitboard[Pawn] & rank_mask & file_mask;
                 uint64_t occ       = all_pop & ~ev_bit & ~captured;       // remove BOTH pawns at once
-                int      king_sq   = __builtin_ctzll(king_bit);
+                int      king_sq   = std::countr_zero(king_bit);
                 uint64_t seen      = Lookup.rank_file.attacks(king_sq, occ) & rank_mask;
                 if (seen & Board.bitboard[!pit] & (Board.bitboard[Rook] | Board.bitboard[Queen]))
                     en_passant_bit = 0;                                   // illegal -> suppress
@@ -178,9 +178,9 @@ void generate_moves(Chess & Board) {
     // generates moves for knights
     piece_bb = Board.bitboard[pit] & Board.bitboard[Knight] & diag_pinned_bb & r_f_pinned_bb;
     while (piece_bb) {  // loop all Knights on the board
-        ev_bit = piece_bb & (~piece_bb + 1UL); // take the rightmost bit in piece_bb and make it the "evaluation_bit"
-        piece_bb &= piece_bb - 1UL; // remove the "evaluation_bit" from piece_bb (remove one Knight if there is more than one)
-        ev_square = __builtin_ctzll(ev_bit); 
+        ev_bit = piece_bb & (~piece_bb + 1ULL); // take the rightmost bit in piece_bb and make it the "evaluation_bit"
+        piece_bb &= piece_bb - 1ULL; // remove the "evaluation_bit" from piece_bb (remove one Knight if there is more than one)
+        ev_square = std::countr_zero(ev_bit); 
         move_to_bits = my_const::knight_neighbors[ev_square] & (no_pop | (Board.bitboard[!pit] & ~Board.bitboard[King]));
         if (!move_to_bits) continue;
         Move.capture (ev_bit, Board.bitboard[!pit] & move_to_bits, 4, capture_list);
@@ -190,9 +190,9 @@ void generate_moves(Chess & Board) {
     // generates moves for Bishops 
     piece_bb =  Board.bitboard[pit] & Board.bitboard[Bishop];
     while (piece_bb) {  // loop all Bishops on the board (can be more than one)
-        ev_bit = piece_bb & (~piece_bb + 1UL); // take the rightmost bit in piece_bb and make it "evaluation_bit"
-        piece_bb &= piece_bb - 1UL; // remove the "evaluation_bit" from piece_bb (remove one Bishop if there is more than one)
-        ev_square = __builtin_ctzll(ev_bit); 
+        ev_bit = piece_bb & (~piece_bb + 1ULL); // take the rightmost bit in piece_bb and make it "evaluation_bit"
+        piece_bb &= piece_bb - 1ULL; // remove the "evaluation_bit" from piece_bb (remove one Bishop if there is more than one)
+        ev_square = std::countr_zero(ev_bit); 
         // use PEXT instruction _pext_u64(population, blockers mask[square] - index) as index for the huge lookup table - remove own pieces last
         move_to_bits = ~Board.bitboard[pit] & ~Board.bitboard[King] & Lookup.diag.attacks(ev_square, all_pop) & dmask(ev_bit, ev_square);
         if (!move_to_bits) continue;
@@ -203,9 +203,9 @@ void generate_moves(Chess & Board) {
     // generates moves for Rooks 
     piece_bb =  Board.bitboard[pit] & Board.bitboard[Rook];
     while (piece_bb) {  // loop all Rooks on the board (can be more than one)
-        ev_bit = piece_bb & (~piece_bb + 1UL); // take the rightmost bit in piece_bb and make it "evaluation_bit"
-        piece_bb &= piece_bb - 1UL; // remove the "evaluation_bit" from piece_bb (remove one Rook if there is more than one)
-        ev_square = __builtin_ctzll(ev_bit); 
+        ev_bit = piece_bb & (~piece_bb + 1ULL); // take the rightmost bit in piece_bb and make it "evaluation_bit"
+        piece_bb &= piece_bb - 1ULL; // remove the "evaluation_bit" from piece_bb (remove one Rook if there is more than one)
+        ev_square = std::countr_zero(ev_bit); 
         move_to_bits = ~Board.bitboard[pit] & ~Board.bitboard[King] & Lookup.rank_file.attacks(ev_square, all_pop) & rmask(ev_bit, ev_square);
         if (!move_to_bits) continue;
         Move.capture (ev_bit, Board.bitboard[!pit] & move_to_bits, 4, capture_list);
@@ -215,9 +215,9 @@ void generate_moves(Chess & Board) {
     // generates moves for Queens 
     piece_bb =  Board.bitboard[pit] & Board.bitboard[Queen];
     while (piece_bb) {   // loop all Rooks on the board (can be more than one)
-        ev_bit = piece_bb & (~piece_bb + 1UL); // take the rightmost bit in piece_bb and make it "evaluation_bit"
-        piece_bb &= piece_bb - 1UL; // remove the "evaluation_bit" from piece_bb (remove one Queen if there is more than one)
-        ev_square = __builtin_ctzll(ev_bit); 
+        ev_bit = piece_bb & (~piece_bb + 1ULL); // take the rightmost bit in piece_bb and make it "evaluation_bit"
+        piece_bb &= piece_bb - 1ULL; // remove the "evaluation_bit" from piece_bb (remove one Queen if there is more than one)
+        ev_square = std::countr_zero(ev_bit); 
         move_to_bits = ~Board.bitboard[pit] & ~Board.bitboard[King] & ((Lookup.rank_file.attacks(ev_square, all_pop) & rmask(ev_bit, ev_square)) | 
                                       (Lookup.diag.attacks(ev_square, all_pop) & dmask(ev_bit, ev_square)));
         if (!move_to_bits) continue;
@@ -227,7 +227,7 @@ void generate_moves(Chess & Board) {
 
     // generates moves for King
     ev_bit =  Board.bitboard[pit] & Board.bitboard[King]; // there will be only one king - make it "evaluation_bit"
-    move_to_bits = my_const::king_neighbors[__builtin_ctzll(ev_bit)] & (no_pop | (Board.bitboard[!pit] & ~Board.bitboard[King])) & ~under_attack_bb;
+    move_to_bits = my_const::king_neighbors[std::countr_zero(ev_bit)] & (no_pop | (Board.bitboard[!pit] & ~Board.bitboard[King])) & ~under_attack_bb;
     Move.capture (ev_bit, Board.bitboard[!pit] & move_to_bits, 4, capture_list);
     Move.from_to (ev_bit, no_pop & move_to_bits, 0, move_list); 
 
@@ -261,11 +261,11 @@ bool check_evasion (Chess & Board, uint64_t under_attack_bb) {
     bool pit = Board.pit, king_in_check {true}; 
     uint64_t all_pop = Board.bitboard[White] | Board.bitboard[Black];
     MoveList temp_possible_moves, temp_possible_captures;
-    uint64_t diag_move_to_bits, r_f_move_to_bits, move_to_bits {0UL}, diag_opp_bit, r_f_opp_bit, temp_mask, low, high;
+    uint64_t diag_move_to_bits, r_f_move_to_bits, move_to_bits {0ULL}, diag_opp_bit, r_f_opp_bit, temp_mask, low, high;
     int ev_checker_square;
 
     uint64_t ev_bit = Board.bitboard[pit] & Board.bitboard[King]; // there will be only one king - make it "evaluation_bit"
-    int ev_square = __builtin_ctzl(ev_bit);
+    int ev_square = std::countr_zero(ev_bit);
     diag_move_to_bits = ((Board.bitboard[!pit] & (Board.bitboard[Bishop] | Board.bitboard[Queen])) | ~all_pop) & 
                             Lookup.diag.attacks(ev_square, all_pop);
     
@@ -274,7 +274,7 @@ bool check_evasion (Chess & Board, uint64_t under_attack_bb) {
     low = temp_mask & (~temp_mask + 1);
     temp_mask &= ~low;
     high = temp_mask & (~temp_mask + 1);
-    diag_move_to_bits &= ((high - 1UL) ^ (low - 1UL)) | high; // use the new mask to sort out and discard what is "behind the king"  
+    diag_move_to_bits &= ((high - 1ULL) ^ (low - 1ULL)) | high; // use the new mask to sort out and discard what is "behind the king"  
 
     r_f_move_to_bits = ((Board.bitboard[!pit] & (Board.bitboard[Rook] | Board.bitboard[Queen])) | ~all_pop) & 
                             Lookup.rank_file.attacks(ev_square, all_pop);
@@ -284,12 +284,12 @@ bool check_evasion (Chess & Board, uint64_t under_attack_bb) {
     low = temp_mask & (~temp_mask + 1);
     temp_mask &= ~low;
     high = temp_mask & (~temp_mask + 1);
-    r_f_move_to_bits &= ((high - 1UL) ^ (low - 1UL)) | high;  // use the new mask to sort out and discard what is "behind the king"                    
+    r_f_move_to_bits &= ((high - 1ULL) ^ (low - 1ULL)) | high;  // use the new mask to sort out and discard what is "behind the king"                    
 
     move_to_bits = my_const::knight_neighbors[ev_square] & (Board.bitboard[!pit] & Board.bitboard[Knight]);
     move_to_bits |= my_const::pawn_neighbors[pit][ev_square] & (Board.bitboard[!pit] & Board.bitboard[Pawn]); // move_to_bits are moves where "to" is blocking or capturing checker
 
-    if (__builtin_popcountl(move_to_bits | diag_opp_bit | r_f_opp_bit) > 1) { // king is in double check - moving the king is the only chance - forget all generated moves
+    if (std::popcount(move_to_bits | diag_opp_bit | r_f_opp_bit) > 1) { // king is in double check - moving the king is the only chance - forget all generated moves
         
         Board.possible_moves.clear();
         Board.possible_captures.clear();
@@ -314,10 +314,10 @@ bool check_evasion (Chess & Board, uint64_t under_attack_bb) {
         uint64_t ep_behind = (((pawn_checker << 8) & my_const::pit_on_off[!pit]) | ((pawn_checker >> 8) & my_const::pit_on_off[pit]))
                         & Board.bitboard[status] & (my_const::row_3_mask | my_const::row_6_mask);
         for (int i = 0; i < Board.possible_moves.size(); ++i) { // king in single check - match already generated moves that blocks checker
-            if (move_to_bits & (1UL << ((Board.possible_moves[i] & to_square_mask) >> 4))) temp_possible_moves.push_back(Board.possible_moves[i]);
+            if (move_to_bits & (1ULL << ((Board.possible_moves[i] & to_square_mask) >> 4))) temp_possible_moves.push_back(Board.possible_moves[i]);
         }
         for (int i = 0; i < Board.possible_captures.size(); ++i) { // king in single check - match already generated captures checker
-            if ((move_to_bits | ep_behind) & (1UL << ((Board.possible_captures[i] & to_square_mask) >> 4))) temp_possible_captures.push_back(Board.possible_captures[i]);
+            if ((move_to_bits | ep_behind) & (1ULL << ((Board.possible_captures[i] & to_square_mask) >> 4))) temp_possible_captures.push_back(Board.possible_captures[i]);
         }
 
         Board.possible_moves = temp_possible_moves;
