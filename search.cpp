@@ -12,7 +12,15 @@
 #include "eval.h"
 #include "movepicker.h"
 
-// Principal variation from the TT: follow each position's stored best move from the root.
+// Triangular PV table: pv[ply] = the best line found from the node at that ply. Built bottom-up: when a
+// move raises alpha, the node's line becomes that move + its child's line. Search thread only.
+struct PvLine { std::array<uint16_t, my_const::MAX_PLY> move; int len = 0; };
+static std::array<PvLine, my_const::MAX_PLY + 1> pv;
+
+// PV from the TT: follow each position's stored best move. Two jobs since the triangular table:
+// (1) the TAIL — continue the search's own line where an exact TT hit answered a PV node;
+// (2) the FALLBACK — the whole PV when the root itself was answered from the TT (a re-searched
+//     position: every iteration then costs one node and builds no line).
 // Every move is checked legal before it's played; stops at a TT miss, an illegal move, or max_len
 // (the cap also ends repetition cycles). Works on a copy — make_new_state touches no global state.
 static std::string tt_pv(Chess b, uint16_t m, int max_len) {
@@ -84,6 +92,19 @@ void search (Chess Board, int depth, int soft_time, int hard_time)  {
             int mate_moves = std::max(1, (mate_plies + 1) / 2);      // plies -> moves, floor at 1
             score = "mate " + std::to_string(max_found > 0 ? mate_moves : -mate_moves);
         } else score = "cp " + std::to_string(max_found);
+        
+        std::string pv_text;
+        if (pv[0].len > 0 and pv[0].move[0] == move) {                // the line the search actually proved…
+            Chess b = Board;
+            for (int k = 0; k < pv[0].len; ++k) {
+                pv_text += uci.decode_buster_move(pv[0].move[k]) + ' ';
+                make_new_state(b, pv[0].move[k]);
+            }
+            // …which ends early where a TT hit answered a PV node: continue from that entry (best effort)
+            tp_table* e = zobrist.probe(b.tpt.zobrist_key_64);
+            if (e and e->move and pv[0].len < i) pv_text += tt_pv(b, e->move, i - pv[0].len);
+        }
+        else pv_text = tt_pv(Board, move, i);                          // root answered from the TT: no line built
 
         std::cout << "info depth " << i
                   << " seldepth "  << std::max(i, max_q_depth)
@@ -92,8 +113,7 @@ void search (Chess Board, int depth, int soft_time, int hard_time)  {
                   << " nps "       << nps
                   << " hashfull "  << zobrist.hashfull()
                   << " time "      << elapsed.count()
-                  << " pv "        << tt_pv(Board, move, i) << std::endl;
-
+                  << " pv "        << pv_text << std::endl;
         if (elapsed.count() >= soft_time) break;   // next iteration wouldn't finish - keep what we have
     }
 
@@ -112,6 +132,7 @@ void search (Chess Board, int depth, int soft_time, int hard_time)  {
 best alpha_beta (Chess & Board, int alpha, int beta, int depth, int ply, int & max_q_depth, std::chrono::steady_clock::time_point timeisup, bool can_null) {
     
     ++Stop.nodes;
+    if (ply < my_const::MAX_PLY) pv[ply].len = 0;   // this node's line starts empty — before ANY early return
     int alphaOrig = alpha;
     
     // threefold repetition checker
@@ -298,6 +319,11 @@ best alpha_beta (Chess & Board, int alpha, int beta, int depth, int ply, int & m
         if (value > result.value) {
             result.value = value;
             result.move = move;
+            if (value > alpha and ply + 1 < my_const::MAX_PLY) {   // a new best line: this move + the child's line
+                pv[ply].move[0] = move;
+                std::copy_n(pv[ply + 1].move.begin(), pv[ply + 1].len, pv[ply].move.begin() + 1);
+                pv[ply].len = pv[ply + 1].len + 1;
+            }
         }
 
         alpha = std::max(alpha, result.value);

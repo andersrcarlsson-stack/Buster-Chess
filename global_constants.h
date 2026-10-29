@@ -188,7 +188,7 @@ constexpr int tempo = 15;   // side-to-move bonus (flat — not phase-dependent)
 
 constexpr std::array<std::string_view, 8> algebra_pieces {"", "", "", "N", "B", "R", "Q", "K"};
 
-constexpr std::string_view engine_version = "7.0.2";   // the one place the version lives: id name, tag, README
+constexpr std::string_view engine_version = "7.0.3";   // the one place the version lives: id name, tag, README
 
 const uint64_t white_king_side = e1+f1+g1;
 const uint64_t white_queen_side = c1+d1+e1;

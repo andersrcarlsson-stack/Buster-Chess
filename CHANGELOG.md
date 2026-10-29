@@ -1,5 +1,20 @@
 # Changelog
 
+## 7.0.3 — 2026-10-29
+
+**A complete principal variation.** Search and evaluation are unchanged — 7.0.3 searches exactly the
+same nodes as 7.0.2 — so the 7.0 rating applies.
+
+- **The PV is now built by the search itself** (a triangular PV table): each line is the exact
+  sequence of moves that produced the score. Before, it was reconstructed from the transposition
+  table after each iteration, and an entry overwritten by another position could cut it short —
+  in rare cases to a single move.
+- **Where a position on the main line was answered from the transposition table** (common when a
+  GUI searches the same or related positions again), the line is continued from the stored moves.
+  In a test that scores every legal move of a position at depth 14 in one engine process, PVs shorter
+  than the depth dropped from 6 of 42 to 1 of 42.
+- A PV can now be longer than the depth: check extensions add plies.
+
 ## 7.0.2 — 2026-09-26
 
 **Windows support.** Search and evaluation are unchanged: on Linux, 7.0.2 searches exactly the same

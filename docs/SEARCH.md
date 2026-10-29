@@ -27,10 +27,12 @@ and principal variation, and remembers the iteration's best move.
 - **Stopping.** The search stops when the time manager says so (see below), at the node limit, or
   when the GUI sends `stop`. An iteration that is interrupted is **thrown away**, and `bestmove` is
   the best move of the last *completed* iteration.
-- **Principal variation.** The PV is read from the transposition table after each iteration:
-  starting from the best move, it follows each position's stored best move, checking each move is
-  legal before playing it. It stops at a missing entry or after as many moves as the iteration's
-  depth, so the tail of a PV can come out short.
+- **Principal variation.** The search builds the PV itself in a *triangular PV table*: each ply has
+  a line, and when a move raises α at a node, that node's line becomes the move followed by its
+  child's line. The root's line is therefore exactly the sequence that produced the score. Where a
+  PV node was answered straight from the transposition table, it built no line of its own; there the
+  PV is continued from the table (each move checked legal) up to the iteration's depth. Check
+  extensions can make a PV longer than the depth. Recording the line doesn't change the search.
 - **Safety net.** Before `bestmove` is printed, the move is checked against the root's legal moves.
   If it is somehow not among them, the first legal move is played instead. A position with no
   legal moves at all answers `bestmove 0000`.

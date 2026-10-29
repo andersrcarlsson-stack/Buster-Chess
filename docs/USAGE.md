@@ -1,6 +1,6 @@
 # Usage
 
-How to run Buster 7.0.1: in a GUI, from a match runner, or by typing UCI commands directly. This is
+How to run Buster: in a GUI, from a match runner, or by typing UCI commands directly. This is
 the reference for every command, `go` parameter and option the engine understands.
 
 ## Quick start
@@ -38,7 +38,7 @@ command can be sent while it is thinking.
 
 | command | what Buster does |
 |---|---|
-| `uci` | prints `id name Buster 7.0.1`, `id author`, the options, `uciok` |
+| `uci` | prints `id name Buster <version>` (e.g. `Buster 7.0.3`), `id author`, the options, `uciok` |
 | `isready` | prints `readyok` |
 | `ucinewgame` | clears the transposition table, killers, history and continuation history |
 | `position startpos [moves …]` | the start position, then the moves in UCI notation (`e2e4`, `e7e8q`) |
@@ -90,7 +90,7 @@ info depth 16 seldepth 27 score cp 15 nodes 4172273 nps 2091364 hashfull 147 tim
 | `score mate N` | mate in N moves; negative if Buster is being mated |
 | `nodes`, `nps`, `time` | nodes searched so far, nodes per second, milliseconds since `go` |
 | `hashfull` | transposition-table use in permille (sampled) |
-| `pv` | the expected line, read from the transposition table; it can end early |
+| `pv` | the expected line, as proved by the search; at least as long as the depth, unless the game ends in it |
 
 When the search ends:
 
