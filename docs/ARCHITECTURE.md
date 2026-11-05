@@ -162,6 +162,9 @@ struct tp_table {                // 16 bytes: four entries per 64-byte cache lin
   different positions with identical keys. At any table size that is about one probe in 2⁶⁴.
 - **Replacement:** one entry per slot. A store is refused only when the *same* position is already
   stored at a *greater* depth; any other store overwrites.
+- **Mate scores** are stored counted from the entry's own position ("mate in k plies from here")
+  and converted back on reading, so a mate found at one ply is reported at the right distance
+  wherever the entry is reused.
 - **Prefetch:** right after a move is made, the child's slot is prefetched, so the memory access
   overlaps with move generation instead of stalling the probe.
 - **Keys:** `hash_piece[square][piece][colour]` for pieces, `hash_piece[square][0][0]` for each

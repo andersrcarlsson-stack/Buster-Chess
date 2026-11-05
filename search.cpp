@@ -151,9 +151,10 @@ best alpha_beta (Chess & Board, int alpha, int beta, int depth, int ply, int & m
     tp_table* hit = zobrist.probe(parent_key);
     uint16_t hash_move = hit ? hit->move : 0;   // capture the hash move on a hit
     if (hit and hit->depth >= depth) {
-        if (hit->flag == 'e') return {hit->value, hit->move};
-        if (hit->flag == 'l' and hit->value >= beta)  return {hit->value, hit->move};
-        if (hit->flag == 'u' and hit->value <= alpha) return {hit->value, hit->move};
+        int tt_value = TranspositionTable::value_from_tt(hit->value, ply);   // mate scores back to root-relative
+        if (hit->flag == 'e') return {tt_value, hit->move};
+        if (hit->flag == 'l' and tt_value >= beta)  return {tt_value, hit->move};
+        if (hit->flag == 'u' and tt_value <= alpha) return {tt_value, hit->move};
         // else: fall through and search normally
     }
 
@@ -353,7 +354,7 @@ best alpha_beta (Chess & Board, int alpha, int beta, int depth, int ply, int & m
     // TTEntry based on result.value and result.move after the loop completes
     if (!result.uci_stop) {
         char flag = result.value <= alphaOrig ? 'u' : (result.value >= beta ? 'l' : 'e');
-        zobrist.store(parent_key, result.value, depth, result.move, flag);
+        zobrist.store(parent_key, result.value, depth, result.move, flag, ply);
     }
     
     return result;
@@ -374,9 +375,10 @@ best q_search (Chess & Board, int alpha, int beta, int depth, int & max_q_depth,
     // key is usable here — a q-entry, or a deeper main-search entry that transposes into this position.
     tp_table* hit = zobrist.probe(parent_key);   // no depth gate: q-entries are depth 0, any key match is usable
     if (hit) {
-        if (hit->flag == 'e') return {hit->value, hit->move};
-        if (hit->flag == 'l' and hit->value >= beta)  return {hit->value, hit->move};
-        if (hit->flag == 'u' and hit->value <= alpha) return {hit->value, hit->move};
+        int tt_value = TranspositionTable::value_from_tt(hit->value, depth);   // q's `depth` is the ply
+        if (hit->flag == 'e') return {tt_value, hit->move};
+        if (hit->flag == 'l' and tt_value >= beta)  return {tt_value, hit->move};
+        if (hit->flag == 'u' and tt_value <= alpha) return {tt_value, hit->move};
     }
     
     if (Board.possible_moves.size() == 0) { // no legal moves - checkmate or stalemate
@@ -439,7 +441,7 @@ best q_search (Chess & Board, int alpha, int beta, int depth, int & max_q_depth,
 
     if (!result.uci_stop) {
         char flag = result.value <= alphaOrig ? 'u' : (result.value >= beta ? 'l' : 'e');
-        zobrist.store(parent_key, result.value, 0, result.move, flag);   // q stores at depth 0
+        zobrist.store(parent_key, result.value, 0, result.move, flag, depth);   // q stores at depth 0; `depth` is the ply
     }
 
     return result;

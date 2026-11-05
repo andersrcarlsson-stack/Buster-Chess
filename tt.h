@@ -88,11 +88,25 @@ public:
     void prefetch(uint64_t key) const {
         __builtin_prefetch(&transposition_table[_pext_u64(key, index_mask)]);
     }
-    void store(uint64_t key, int value, int depth, uint16_t move, char flag) {
+    // Mate scores are counted from the ROOT (-MATE + ply), but a TT entry is reused at other plies.
+    // So the table holds them counted from the NODE ("mate in k plies from here"): add the ply on
+    // store, take it off on read. Other scores pass through unchanged.
+    static int value_to_tt(int value, int ply) {
+        if (value >=  my_const::MATE_IN_MAX) return value + ply;
+        if (value <= -my_const::MATE_IN_MAX) return value - ply;
+        return value;
+    }
+    static int value_from_tt(int value, int ply) {
+        if (value >=  my_const::MATE_IN_MAX) return value - ply;
+        if (value <= -my_const::MATE_IN_MAX) return value + ply;
+        return value;
+    }
+
+    void store(uint64_t key, int value, int depth, uint16_t move, char flag, int ply) {
         tp_table & slot = transposition_table[_pext_u64(key, index_mask)];
         // key-aware depth-preferred (same policy as #31): decline only a same-position shallower store
         if (slot.zobrist_key_64 != key or depth >= slot.depth) {
-            slot.value = value; slot.depth = depth; slot.move = move;
+            slot.value = value_to_tt(value, ply); slot.depth = depth; slot.move = move;
             slot.flag = flag;   slot.zobrist_key_64 = key;
         }
     }

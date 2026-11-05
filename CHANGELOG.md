@@ -1,5 +1,16 @@
 # Changelog
 
+## 7.0.4 — 2026-11-05
+
+**Correct mate distances.** Evaluation is unchanged, and the search visits exactly the same nodes
+as 7.0.3 until a mate score appears, so the 7.0 rating applies.
+
+- **Mate scores in the transposition table are now stored relative to the position they belong to**
+  and converted back when they are read. Before, a mate found at one ply was reused at another
+  with the wrong distance, so the reported mate could stand still or jump between depths (for
+  example "mate 4" for White, and still "mated in 4" for Black after White had moved). Mates now
+  count down one move at a time and stay stable from depth to depth.
+
 ## 7.0.3 — 2026-10-29
 
 **A complete principal variation.** Search and evaluation are unchanged — 7.0.3 searches exactly the
